@@ -1,0 +1,33 @@
+@startuml
+' hide the spot
+hide circle
+
+' avoid problems with angled crows feet
+skinparam linetype ortho
+
+entity "Expenditure" as exp {
+  * **id : Text**
+  --
+  date : Date
+  category_id : Text
+  ammount : Decimal
+  note : Text
+  create_at : Datetime
+  update_at : Datetime
+}
+
+entity "Category" as cat {
+  * **id : Text**
+  --
+  type : Decimal (0:固定資産、1:変動費 )
+  name : Text
+  note : Text
+  is_enable : bool
+  sort_order_no : Decimal
+  create_at : Datetime
+  update_at : Datetime
+}
+
+exp ||--|{ cat
+
+@enduml

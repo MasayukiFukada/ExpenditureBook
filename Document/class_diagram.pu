@@ -1,0 +1,175 @@
+@startuml
+
+package "Primitive" {
+
+  class ID {
+    - id : String
+  }
+
+  class Money {
+    - value : int
+  }
+
+  class ExpenditureDate {
+    - date : Date
+  }
+
+  class ItemNote {
+    - note : String
+  }
+
+  class CategoryNote {
+    - note : String
+  }
+
+}
+
+package "Cotroller" {
+
+  class MainViewController {
+  }
+
+  class EditViewController {
+  }
+
+  class CategoryMasterViewController {
+  }
+
+}
+
+package "Model" {
+
+  class Expenditures {
+    - list : List<Expenditure>
+  }
+
+  class Expenditure {
+    - id : ID
+    - date : ExpenditureDate
+    - ammount : Money
+    - category : Category
+    - note : ItenNote
+    + Expenditure(ExpenditureEntity)
+    + toEntity() : ExpenditureEntity
+  }
+
+  class Categories {
+    - list : List<Category>
+  }
+
+  class Category {
+    - id : ID
+    - note : CategoryNote
+    + Category(CategoryEntity)
+    + toEntity() : CategoryEntity
+  }
+
+  class TotalAggregate {
+    - items : List<SubAggregate>
+    - totalAmmount : Money 
+    + reset() : void
+    + add(Expenditure) : boolean
+    + getItems() : List<SubAggregate>
+    + get(month : int) : List<SubAggregate>
+  }
+
+  class SubAggregate {
+    - items : List<AggregateItem>
+    - month : int
+    - subAmmount : Money 
+  }
+
+  class AggregateItem {
+    - category : Category
+    - subTotalAmmount : Money
+  }
+}
+
+package "Service" {
+  class ExpenditureService {
+    + getMonthly(year int, month int) : Expenditures
+    + insert(Expenditure) : boolean
+    + update(Expenditure) : boolean
+    + delete(Expenditure) : boolean
+  }
+
+  class CategoryService {
+    + getAll() : Categories
+    + insert(Category) : boolean
+    + update(Category) : boolean
+    + delete(Category) : boolean
+  }
+
+  class AggregateService {
+    + getAnnualy(year : int) : TotalAggregate
+    + getMonthly(year : int, month : int) : TotalAggregate
+  }
+}
+
+package "Repository" {
+
+  class ExpenditureRepository {
+    + getAnnualy(year : int) : List<ExpenditureEntity>
+    + getMonthly(year : int , month : int) : List<ExpenditureEntity>
+    + insert(ExpenditureEntity) : String
+    + update(ExpenditureEntity) : boolean
+    + delete(ExpenditureEntity) : boolean
+  }
+
+  class CategoryRepository {
+    + getAll() : List<CategoryEntity>
+    + insert(CategoryEntity) : String
+    + update(CategoryEntity) : boolean
+    + delete(CategoryEntity) : boolean
+  }
+
+}
+
+package "Entity" {
+
+  class ExpenditureEntity {
+    - id : String
+    - date : Date
+    - category_id : String
+    - ammount : int
+    - note : String
+    - create_at : Date
+    - update_at : Date
+  }
+
+  class CategoryEntity {
+    - id : String
+    - type : int
+    - name : String
+    - note : String
+    - is_enable : boolean
+    - sort_order_no : int
+    - create_at : Date
+    - update_at : Date
+  }
+
+}
+
+MainViewController o-up- Categories
+MainViewController o-up- TotalAggregate
+MainViewController "1" -- "1" AggregateService
+EditViewController o-up- Expenditures
+EditViewController o-up- Categories
+EditViewController "1" -- "1" CategoryService
+EditViewController "1" -- "1" ExpenditureService
+CategoryMasterViewController o-up- Categories
+CategoryMasterViewController "1" -- "1" CategoryService
+AggregateService "1" -- "1" ExpenditureRepository
+AggregateService "1" -- "1" CategoryRepository
+ExpenditureService "1" -- "1" ExpenditureRepository
+CategoryService "1" -- "1" CategoryRepository
+
+Expenditures *-up- Expenditure
+Categories *-up- Category
+TotalAggregate *-up- SubAggregate
+SubAggregate *-up- AggregateItem
+
+ExpenditureRepository "1" *-- "0..*" ExpenditureEntity
+CategoryRepository "1" *-- "1..*" CategoryEntity
+
+@enduml 
