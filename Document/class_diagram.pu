@@ -14,11 +14,19 @@ package "Primitive" {
     - date : Date
   }
 
+  class Month {
+    - value : int
+  }
+
   class ItemNote {
     - note : String
   }
 
   class CategoryNote {
+    - note : String
+  }
+
+  class CommentNote {
     - note : String
   }
 
@@ -75,13 +83,22 @@ package "Model" {
 
   class SubAggregate {
     - items : List<AggregateItem>
-    - month : int
+    - month : Month
     - subAmmount : Money 
   }
 
   class AggregateItem {
     - category : Category
     - subTotalAmmount : Money
+  }
+
+  class MonthlyComments {
+    - items : List<MonthlyComment>
+  }
+  
+  class MonthlyComment {
+    - id : ID
+    - note : CommentNote
   }
 }
 
@@ -104,6 +121,10 @@ package "Service" {
     + getAnnualy(year : int) : TotalAggregate
     + getMonthly(year : int, month : int) : TotalAggregate
   }
+
+  class MonthlyCommentService {
+    + getAnnualy(year : int) : MonthlyComments
+  }
 }
 
 package "Repository" {
@@ -121,6 +142,12 @@ package "Repository" {
     + insert(CategoryEntity) : String
     + update(CategoryEntity) : boolean
     + delete(CategoryEntity) : boolean
+  }
+
+  class MonthlyCommentRepository {
+    + getAnnualy(year : int) : List<MonthlyCommentEntity>
+    + insert(MonthlyCommentEntity) : String
+    + update(MonthlyCommentEntity) : boolean
   }
 
 }
@@ -148,11 +175,20 @@ package "Entity" {
     - update_at : Date
   }
 
+  class MonthlyCommentEntity {
+    - id : String
+    - year : int
+    - month : int
+    - note : String
+  }
+
 }
 
 MainViewController o-up- Categories
 MainViewController o-up- TotalAggregate
+MainViewController o-up- MonthlyComments
 MainViewController "1" -- "1" AggregateService
+MainViewController "1" -- "1" MonthlyCommentService
 EditViewController o-up- Expenditures
 EditViewController o-up- Categories
 EditViewController "1" -- "1" CategoryService
@@ -163,13 +199,16 @@ AggregateService "1" -- "1" ExpenditureRepository
 AggregateService "1" -- "1" CategoryRepository
 ExpenditureService "1" -- "1" ExpenditureRepository
 CategoryService "1" -- "1" CategoryRepository
+MonthlyCommentService "1" -- "1" MonthlyCommentRepository
 
 Expenditures *-up- Expenditure
 Categories *-up- Category
 TotalAggregate *-up- SubAggregate
 SubAggregate *-up- AggregateItem
+MonthlyComments *-up- MonthlyComment
 
 ExpenditureRepository "1" *-- "0..*" ExpenditureEntity
 CategoryRepository "1" *-- "1..*" CategoryEntity
+MonthlyCommentRepository "1" *-- "0..*" MonthlyCommentEntity
 
 @enduml 

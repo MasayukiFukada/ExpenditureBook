@@ -28,6 +28,15 @@ entity "Category" as cat {
   update_at : Datetime
 }
 
+entity "MonthlyComment" as cmt {
+  * **id : Text**
+  --
+  year : Decimal
+  month : Decimal
+  note : Text
+}
+
 exp ||--|{ cat
+exp ||--|{ cmt
 
 @enduml
