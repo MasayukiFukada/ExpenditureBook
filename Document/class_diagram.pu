@@ -88,12 +88,12 @@ package "Model" {
   class SubAggregate {
     - items : List<AggregateItem>
     - month : Month
-    - subAmmount : Money 
+    - subTotalAmmount : Money 
   }
 
   class AggregateItem {
     - category : Category
-    - subTotalAmmount : Money
+    - categoryAmmount : Money
   }
 
   class MonthlyComments {
