@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>出費管理</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <script type="text/javascript">
+    // 新規登録用に初期化
+    function onPush_New(){
+        document.getElementById("txt_id").value = "";
+        document.getElementById("txt_name").value = "";
+        document.getElementById("txt_note").value = "";
+    }
+
+    // 項目の登録 & 更新
+    // 参考: https://qiita.com/t_ogisawa/items/0da9325bd4ffe7cfd41e
+    // 下の postFetch() も含む
+    async function onPush_Submit(){
+        const status = await postFetch();
+        if (status == 200 || status== 201) {
+        }
+    }
+
+    async function postFetch() {
+        const fetchForm = document.getElementById("registerForm");
+        const url = fetchForm.getAttribute('action');
+        const method = fetchForm.getAttribute('method');
+        const send = {
+            "is_enable": document.getElementById("txt_enable").checked,
+            "id": document.getElementById("txt_id").value,
+            "type": document.getElementById("select_type").value,
+            "name": document.getElementById("txt_name").value,
+            "note": document.getElementById("txt_note").value,
+            "sort_order": document.getElementById("txt_sort_order").value,
+            "create_at": document.getElementById("txt_create_at").value,
+            "update_at": document.getElementById("txt_update_at").value
+        };
+        const data = send;
+        const json = JSON.stringify(data);
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8',
+                },
+                body: json,
+            });
+            if (response.status !== 200 && response.status !== 201) {
+                // 200,201以外ならばエラーメッセージを投げる
+                throw `response.status = ${response.status}, response.statusText = ${response.statusText}`;
+            }
+            location.reload();
+            return await response.status;
+        }
+        catch (err) {
+            console.log("err: " + err);
+        }
+        return null;
+    }
+
+    // テーブルの選択処理
+    function onClick_Table(obj) {
+        document.getElementById("txt_id").value = obj.children[0].innerText;
+        const dataValue = obj.children[1].innerText;
+        const selectBox = document.getElementById("select_type");
+        for(const option of selectBox.options) {
+            if(option.value == dataValue) {
+                option.selected = true;
+              }
+          }
+        document.getElementById("txt_name").value = obj.children[2].innerText;
+        document.getElementById("txt_note").value = obj.children[3].innerText;
+        document.getElementById("txt_sort_order").value = obj.children[4].innerText;
+        if(obj.children[5].innerText == "true") {
+            document.getElementById("txt_enable").checked = true;
+        } else {
+            document.getElementById("txt_enable").checked = false;
+        }
+        document.getElementById("txt_create_at").value = obj.children[6].innerText;
+        document.getElementById("txt_update_at").value = obj.children[7].innerText;
+    }
+    </script>
+    <body>
+        <!-- ◆ 入力フォーム ◆ -->
+        <form id="registerForm" action="category_update" method="POST">
+            <div>
+                <Label for="txt_enable">有効:</Label>
+                <input id="txt_enable" type="checkbox"></input>
+            </div>
+            <div>
+                <Label for="txt_id">ID:</Label>
+                <input id="txt_id" type="text" readonly></input>
+            </div>
+            <div>
+                <Label for="select_type">種別:</Label>
+                <select id="select_type">
+                    <option value="0">固定費</option>
+                    <option value="1">変動費</option>
+                </select>
+            </div>
+            <div>
+                <Label for="txt_name">カテゴリ名:</Label>
+                <input id="txt_name" type="text"></input>
+            </div>
+            <div>
+                <Label for="txt_sort_order">並び順:</Label>
+                <input id="txt_sort_order" type="text"></input>
+            </div>
+            <div>
+                <Label for="txt_note">備考:</Label>
+                <input id="txt_note" type="text"></input>
+            </div>
+            <div>
+                <Label for="txt_create_at">作成日時:</Label>
+                <input id="txt_create_at" type="text" readonly></input>
+            </div>
+            <div>
+                <Label for="txt_update_at">更新日時:</Label>
+                <input id="txt_update_at" type="text" readonly></input>
+            </div>
+            <button type="button" onclick="onPush_New()">新規</button>
+            <button type="button" onclick="onPush_Submit()">更新</button>
+        </form>
+        <!-- ◆ 検索結果 ◆ -->
+        <table>
+            <thead>
+                <tr>
+                    <td>ID</td>
+                    <td>種別</td>
+                    <td>カテゴリ名</td>
+                    <td>備考</td>
+                    <td>並び順</td>
+                    <td>有効</td>
+                    <td>作成日</td>
+                    <td>更新日</td>
+                </tr>
+            </thead>
+            <tbody>
+                <th:block th:each="data:${categoryMaster}">
+                    <tr onclick="onClick_Table(this)">
+                        <td th:text="${data.id.id}"></td>
+                        <td th:text="${data.type}"></td>
+                        <td th:text="${data.name}"></td>
+                        <td th:text="${data.note.note}"></td>
+                        <td th:text="${data.sort_order_no}"></td>
+                        <td th:text="${data.is_enable}"></td>
+                        <td th:text="${data.create_at}"></td>
+                        <td th:text="${data.update_at}"></td>
+                    </tr>
+                </th:block>
+            </tbody>
+        </table>
+        <a href="/main">トップへ戻る</a>
+    </body>
+</html>

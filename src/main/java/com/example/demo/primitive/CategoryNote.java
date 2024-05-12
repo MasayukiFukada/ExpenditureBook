@@ -6,5 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CategoryNote {
-	private String note;
+    private String note;
+
+    public CategoryNote(String arg) {
+        this.note = arg;
+    }
 }

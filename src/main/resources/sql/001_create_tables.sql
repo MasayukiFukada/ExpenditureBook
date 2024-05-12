@@ -19,3 +19,11 @@ create_at DATETIME NOT NULL,
 update_at DATETIME,
 PRIMARY KEY (id),
 FOREIGN KEY (category_id) REFERENCES Category (id));
+
+CREATE TABLE MonthlyComment
+(id VARCHAR(50) NOT NULL,
+year INTEGER NOT NULL,
+month INTEGER NOT NULL,
+note VARCHAR(255) NOT NULL,
+PRIMARY KEY (id));
+

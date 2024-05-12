@@ -1,5 +1,11 @@
 package com.example.demo.model;
 
-public class Expenditures {
+import java.util.List;
 
+public class Expenditures {
+    private List<Expenditure> items;
+
+    public Expenditures(List<Expenditure> arg) {
+        this.items = arg;
+    }
 }
