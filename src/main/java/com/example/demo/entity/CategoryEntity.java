@@ -30,8 +30,11 @@ public class CategoryEntity {
     @Column(name = "is_enable")
     private boolean is_enable;
 
+    // NOTE:
+    // 変数名にアンダースコアを含むとソート処理をリポジトリに生成するのに失敗する
+    // カラム名には含んでも良いが、エンティティ側には含めないように。
     @Column(name = "sort_order_no")
-    private int sort_order_no;
+    private int sortOrderNo;
 
     @Column(name = "create_at")
     private LocalDateTime create_at;

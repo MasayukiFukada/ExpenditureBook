@@ -29,7 +29,9 @@ public class CategoryService {
     }
 
     public Categories getAll() {
-        List<CategoryEntity> entities = repository.findAll();
+        // List<CategoryEntity> entities =
+        // repository.findAll(Sort.by(Sort.Direction.ASC, "sort_order_no"));
+        List<CategoryEntity> entities = repository.findByOrderBySortOrderNoAsc();
         Categories newCategories = new Categories(
                 entities.stream().map(i -> convertEntityToModel(i)).collect(Collectors.toList()));
         return newCategories;
@@ -72,7 +74,7 @@ public class CategoryService {
         Category item = new Category(entity.getType(), entity.getName(), new CategoryNote(entity.getNote()));
         item.setId(new ID(entity.getId()));
         item.setNote(new CategoryNote(entity.getNote()));
-        item.setSort_order_no(entity.getSort_order_no());
+        item.setSort_order_no(entity.getSortOrderNo());
         item.set_enable(entity.is_enable());
         item.setCreate_at(entity.getCreate_at());
         item.setUpdate_at(entity.getUpdate_at());
@@ -86,7 +88,7 @@ public class CategoryService {
         item.setType(model.getType());
         item.setName(model.getName());
         item.set_enable(model.is_enable());
-        item.setSort_order_no(model.getSort_order_no());
+        item.setSortOrderNo(model.getSort_order_no());
         if (model.getCreate_at() == null) {
             item.setCreate_at(LocalDateTime.now());
         } else {

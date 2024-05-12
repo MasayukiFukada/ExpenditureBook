@@ -48,9 +48,6 @@ public class CategoryMasterViewController {
         model.setNote(note);
         model.setSort_order_no(Integer.valueOf(body.get("sort_order")));
         boolean enable = (body.get("is_enable") == "true");
-        System.out.println("★★");
-        System.out.println(body.get("is_enable"));
-        System.out.println(enable);
         model.set_enable(enable);
         model.setUpdate_at(LocalDateTime.now());
         final String getCreateAt = body.get("create_at");
