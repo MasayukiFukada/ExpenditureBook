@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +30,22 @@ public class CategoryService {
     }
 
     public Categories getAll() {
-        // List<CategoryEntity> entities =
-        // repository.findAll(Sort.by(Sort.Direction.ASC, "sort_order_no"));
         List<CategoryEntity> entities = repository.findByOrderBySortOrderNoAsc();
         Categories newCategories = new Categories(
                 entities.stream().map(i -> convertEntityToModel(i)).collect(Collectors.toList()));
         return newCategories;
+    }
+
+    public Categories getEnable() {
+        List<CategoryEntity> entities = repository.findByOrderBySortOrderNoAsc();
+        Categories newCategories = new Categories(entities.stream().filter(i -> i.is_enable())
+                .map(i -> convertEntityToModel(i)).collect(Collectors.toList()));
+        return newCategories;
+    }
+
+    public Category getCategoryById(String id) {
+        Optional<CategoryEntity> foundEntity = repository.findById(id);
+        return convertEntityToModel(foundEntity.orElse(new CategoryEntity()));
     }
 
     @Transactional

@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,6 +70,16 @@ public class ExpenditureService {
     private ExpenditureEntity convertModelToEntity(Expenditure model) {
         ExpenditureEntity item = new ExpenditureEntity();
         item.setId(model.getId().getId());
+        item.setAmmount(model.getAmmount().getValue());
+        item.setDate(model.getDate().getDate());
+        item.setNote(model.getNote().getNote());
+        item.setCategory_id(model.getCategory().getId().getId());
+        if (model.getCreate_at() == null) {
+            item.setCreate_at(LocalDateTime.now());
+        } else {
+            item.setCreate_at(model.getCreate_at());
+        }
+        item.setUpdate_at(LocalDateTime.now());
         return item;
     }
 }

@@ -1,5 +1,7 @@
 package com.example.demo.model;
 
+import java.time.LocalDateTime;
+
 import com.example.demo.primitive.ExpenditureDate;
 import com.example.demo.primitive.ID;
 import com.example.demo.primitive.ItemNote;
@@ -16,4 +18,6 @@ public class Expenditure {
     private Money ammount;
     private Category category;
     private ItemNote note;
+    private LocalDateTime create_at;
+    private LocalDateTime update_at;
 }

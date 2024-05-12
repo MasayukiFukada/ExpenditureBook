@@ -1,9 +1,9 @@
 package com.example.demo.primitive;
 
-import lombok.Setter;
+import lombok.Getter;
 
-@Setter
 public class Money {
+    @Getter
     private int value;
 
     public Money(int value) {
