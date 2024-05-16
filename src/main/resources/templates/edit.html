@@ -1,112 +1,107 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
+        <script src="https://unpkg.com/vue@2.7.16"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <title>出費管理</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     </head>
-    <script type="text/javascript">
-    function onPress_Filter() {
-        let year = document.getElementById("select_year").value;
-        let month = document.getElementById("select_month").value;
-    }
-
-    async function onPress_Register() {
-        const status = await postFetch();
-        if (status == 200 || status== 201) {
-        }
-
-        async function postFetch() {
-            const fetchForm = document.getElementById("registerForm");
-            const url = fetchForm.getAttribute('action');
-            const method = fetchForm.getAttribute('method');
-            const send = {
-                "id": document.getElementById("txt_id").value,
-                "date": document.getElementById("date_register").value,
-                "category": document.getElementById("select_category").value,
-                "ammount": document.getElementById("txt_ammount").value,
-                "note": document.getElementById("txt_note").value
-            };
-            const data = send;
-            const json = JSON.stringify(data);
-            try {
-                const response = await fetch(url, {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json;charset=utf-8',
-                    },
-                    body: json,
-                });
-                if (response.status !== 200 && response.status !== 201) {
-                    // 200,201以外ならばエラーメッセージを投げる
-                    throw `response.status = ${response.status}, response.statusText = ${response.statusText}`;
-                }
-                //location.reload();
-                return await response.status;
-            }
-            catch (err) {
-                console.log("err: " + err);
-            }
-            return null;
-        }
-    }
-    </script>
     <body>
-        <!-- 編集画面 -->
-        <form id="registerForm" action="expenditure_update" method="POST">
-            <label for="txt_id">ID:</label>
-            <input type="text" id="txt_id" />
-            <label for="date_register">登録日:</label>
-            <input type="date" id="date_register"/>
-            <label for="select_category">カテゴリ:</label>
-            <select id="select_category">
-                <th:block th:each="data:${categoryMaster}">
-                    <option th:value="${data.id.id}" th:text="${data.name}"></option>
-                </th:block>
-            </select>
-            <label for="txt_ammount">金額:</label>
-            <input id="txt_ammount" type="number" />
-            <label for="txt_note">備考:</label>
-            <input id="txt_note" type="text"/>
-            <button type="button" onclick="onPress_Register()">登録</button>
-        </form>
-        <!-- 絞り込み画面 -->
-        <p>
-            <select id="select_year">
-                <th:block th:each="year:${yearSelect}">
-                <option th:value="${year}" th:text="${year}"></option>
-                </th:block>
-            </select>
-        </p>
-        <p>
-            <select id="select_month">
-                <th:block th:each="month:${monthSelect}">
-                <option th:value="${month}" th:text="${month}"></option>
-                </th:block>
-            </select>
-        </p>
-        <p>
-            <button type="button" onclick="onPress_Filter()">フィルター</button>
-        </p>
-        <!-- リスト -->
-        <Table>
-            <thead>
-                <tr>
-                    <td>ID</td>
-                    <td>日付</td>
-                    <td>カテゴリ</td>
-                    <td>金額</td>
-                    <td>備考</td>
-                </tr>
-            </thead>
-            <tbody>
-            <!--
-                <th:block th:each="item : ${}">
-                <tr onclick="onClick_Table(this)">
-                </tr>
-                </th:block>
-                 -->
-            </tbody>
-        </Table>
-        <a href="/">トップへ戻る</a>
+        <div id='app'>
+            <!-- 編集画面 -->
+            <form id="registerForm" action="expenditure_update" method="POST">
+                <label for="txt_id">ID:</label>
+                <input type="text" id="txt_id" />
+                <label for="date_register">登録日:</label>
+                <input type="date" id="date_register"/>
+                <label for="select_category">カテゴリ:</label>
+                <select id="select_category">
+                    <th:block th:each="data:${categoryMaster}">
+                        <option th:value="${data.id.id}" th:text="${data.name}"></option>
+                    </th:block>
+                </select>
+                <label for="txt_ammount">金額:</label>
+                <input id="txt_ammount" type="number" />
+                <label for="txt_note">備考:</label>
+                <input id="txt_note" type="text"/>
+                <button type="button" @click="register()">登録</button>
+            </form>
+            <!-- 絞り込み画面 -->
+            <form id="filterForm" action="expenditure_filter" method="POST">
+                <select id="select_year">
+                    <th:block th:each="year:${yearSelect}">
+                    <option th:value="${year}" th:text="${year}"></option>
+                    </th:block>
+                </select>
+                <select id="select_month">
+                    <th:block th:each="month:${monthSelect}">
+                    <option th:value="${month}" th:text="${month}"></option>
+                    </th:block>
+                </select>
+                <button type="button" @click="filter()">フィルター</button>
+            </form>
+            <!-- リスト -->
+            <Table>
+                <thead>
+                    <tr>
+                        <td>ID</td>
+                        <td>日付</td>
+                        <td>カテゴリ</td>
+                        <td>金額</td>
+                        <td>備考</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr @click="select(item)" v-for="(item,key) in expenditures">
+                        <td> {{item.id}} </td>
+                        <td> {{item.date}} </td>
+                        <td> {{item.category_name}} </td>
+                        <td> {{item.ammount}} </td>
+                        <td> {{item.note}} </td>
+                    </tr>
+                </tbody>
+            </Table>
+            <a href="/">トップへ戻る</a>
+        </div>
+        <script type="text/javascript">
+
+        var app = new Vue({
+          el: '#app',
+          data: {
+            expenditures: []
+          },
+          methods: {
+            filter: async function() {
+                var url = "/expenditure_filter"
+                await axios.post(url,{
+                    year: document.getElementById("select_year").value,
+                    month: document.getElementById("select_month").value
+                }).then(x => {
+                    this.expenditures = x.data
+                })
+            },
+            select: function(obj) {
+                document.getElementById("txt_id").value = obj.id;
+                document.getElementById("date_register").value = obj.date;
+                document.getElementById("select_category").value = obj.category_id;
+console.log(obj.category_name);
+                document.getElementById("txt_ammount").value = obj.ammount;
+                document.getElementById("txt_note").value = obj.note;
+            },
+            register:async function() {
+                var url = "expenditure_update"
+                await axios.post(url,{
+                    id: document.getElementById("txt_id").value,
+                    date: document.getElementById("date_register").value,
+                    category: document.getElementById("select_category").value,
+                    ammount: document.getElementById("txt_ammount").value,
+                    note: document.getElementById("txt_note").value
+                }).then(x => {
+                    this.filter();
+                })
+            }
+          }
+        })
+        </script>
     </body>
 </html>

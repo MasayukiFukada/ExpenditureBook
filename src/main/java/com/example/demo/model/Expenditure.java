@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import java.time.LocalDateTime;
+import java.util.StringJoiner;
 
 import com.example.demo.primitive.ExpenditureDate;
 import com.example.demo.primitive.ID;
@@ -20,4 +21,17 @@ public class Expenditure {
     private ItemNote note;
     private LocalDateTime create_at;
     private LocalDateTime update_at;
+
+    @Override
+    public String toString() {
+        StringJoiner joiner = new StringJoiner(",");
+        joiner.add("ID: " + this.id.getId());
+//        joiner.add(" DATE: " + this.getDate().toString());
+        joiner.add(" MONEY: " + this.ammount.getValue());
+        joiner.add(" CATEGORY: " + this.category.getId().getId());
+        joiner.add(" NOTE: " + this.note.getNote());
+        joiner.add(" CREATE_AT: " + this.create_at.toString());
+        joiner.add(" UPDATE_AT: " + this.update_at.toString());
+        return joiner.toString();
+    }
 }

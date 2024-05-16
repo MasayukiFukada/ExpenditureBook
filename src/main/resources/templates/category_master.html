@@ -35,8 +35,7 @@
             "create_at": document.getElementById("txt_create_at").value,
             "update_at": document.getElementById("txt_update_at").value
         };
-        const data = send;
-        const json = JSON.stringify(data);
+        const json = JSON.stringify(send);
         try {
             const response = await fetch(url, {
                 method: method,

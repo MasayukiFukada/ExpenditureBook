@@ -11,17 +11,24 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.entity.ExpenditureEntity;
 import com.example.demo.model.Expenditure;
 import com.example.demo.model.Expenditures;
+import com.example.demo.model.JSONExpenditure;
+import com.example.demo.primitive.ExpenditureDate;
 import com.example.demo.primitive.ID;
+import com.example.demo.primitive.ItemNote;
+import com.example.demo.primitive.Money;
 import com.example.demo.repository.ExpenditureRepository;
 
 @Service
 @Transactional
 public class ExpenditureService {
     @Autowired
+    CategoryService categoryService;
+
+    @Autowired
     ExpenditureRepository repository;
 
     public Expenditures getMonthly(int year, int month) {
-        List<ExpenditureEntity> entities = repository.findAll();
+        List<ExpenditureEntity> entities = repository.findAllByOrderByIdDesc();
         Expenditures newExpenditures = new Expenditures(entities.stream().filter(i -> i.getDate().getYear() == year)
                 .filter(i -> i.getDate().getMonthValue() == month).map(i -> convertEntityToModel(i))
                 .collect(Collectors.toList()));
@@ -64,6 +71,12 @@ public class ExpenditureService {
     private Expenditure convertEntityToModel(ExpenditureEntity entity) {
         Expenditure item = new Expenditure();
         item.setId(new ID(entity.getId()));
+        item.setAmmount(new Money(entity.getAmmount()));
+        item.setDate(new ExpenditureDate(entity.getDate()));
+        item.setCategory(categoryService.getCategoryById(entity.getCategory_id()));
+        item.setNote(new ItemNote(entity.getNote()));
+        item.setCreate_at(entity.getCreate_at());
+        item.setUpdate_at(entity.getUpdate_at());
         return item;
     }
 
@@ -81,5 +94,17 @@ public class ExpenditureService {
         }
         item.setUpdate_at(LocalDateTime.now());
         return item;
+    }
+
+    public JSONExpenditure convertModelToJSONModel(Expenditure model) {
+        JSONExpenditure converted = new JSONExpenditure();
+        converted.setId(model.getId().getId());
+        converted.setDate(model.getDate().getDate().toString());
+        converted.setAmmount(model.getAmmount().getValue());
+        converted.setCategory_id(model.getCategory().getId().getId());
+        converted.setCategory_name(model.getCategory().getName());
+        converted.setNote(model.getNote().getNote());
+        converted.setUpdate_at(model.getUpdate_at().toString());
+        return converted;
     }
 }

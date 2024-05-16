@@ -8,16 +8,20 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.demo.model.Categories;
 import com.example.demo.model.Category;
 import com.example.demo.model.Expenditure;
+import com.example.demo.model.JSONExpenditure;
 import com.example.demo.primitive.ExpenditureDate;
 import com.example.demo.primitive.ID;
 import com.example.demo.primitive.ItemNote;
@@ -47,6 +51,20 @@ public class EditViewController {
         model.addAttribute("monthSelect", rangeMonth);
 
         return "edit.html";
+    }
+
+    // SpringBoot で JSON を返す参考資料
+    // https://qiita.com/take_ksk/items/845dfe496b2d4e6baac3
+    // ResponseBody のアノテーション付ける
+    // ResponseEntity を返す
+
+    @RequestMapping(value = "/expenditure_filter", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<List<JSONExpenditure>> search(@RequestBody Map<String, String> body) {
+        List<JSONExpenditure> found = expenditureService
+                .getMonthly(Integer.valueOf(body.get("year")), Integer.valueOf(body.get("month"))).getItems().stream()
+                .map(item -> expenditureService.convertModelToJSONModel(item)).collect(Collectors.toList());
+        return new ResponseEntity<>(found, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/expenditure_update", method = RequestMethod.POST)
