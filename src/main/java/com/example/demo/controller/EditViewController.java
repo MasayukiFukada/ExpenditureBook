@@ -50,6 +50,7 @@ public class EditViewController {
         List<Integer> rangeMonth = IntStream.rangeClosed(1, 12).boxed().collect(Collectors.toList());
         model.addAttribute("monthSelect", rangeMonth);
 
+        model.addAttribute("currentMonth", today.getMonthValue());
         return "edit.html";
     }
 

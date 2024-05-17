@@ -1,30 +1,44 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
+        <link th:href="@{/css/design_debug.css}" rel="stylesheet" />
+        <link th:href="@{/css/edit.css}" rel="stylesheet" />
         <script src="https://unpkg.com/vue@2.7.16"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <title>出費管理</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     </head>
-    <body>
+    <body class="container">
+        <a href="/">トップへ戻る</a>
         <div id='app'>
             <!-- 編集画面 -->
             <form id="registerForm" action="expenditure_update" method="POST">
-                <label for="txt_id">ID:</label>
-                <input type="text" id="txt_id" />
-                <label for="date_register">登録日:</label>
-                <input type="date" id="date_register"/>
-                <label for="select_category">カテゴリ:</label>
-                <select id="select_category">
-                    <th:block th:each="data:${categoryMaster}">
-                        <option th:value="${data.id.id}" th:text="${data.name}"></option>
-                    </th:block>
-                </select>
-                <label for="txt_ammount">金額:</label>
-                <input id="txt_ammount" type="number" />
-                <label for="txt_note">備考:</label>
-                <input id="txt_note" type="text"/>
+                <p>
+                    <label for="txt_id">ID:</label>
+                    <input type="text" id="txt_id" />
+                </p>
+                <p>
+                    <label for="date_register">登録日:</label>
+                    <input type="date" id="date_register"/>
+                </p>
+                <p>
+                    <label for="select_category">カテゴリ:</label>
+                    <select id="select_category">
+                        <th:block th:each="data:${categoryMaster}">
+                            <option th:value="${data.id.id}" th:text="${data.name}"></option>
+                        </th:block>
+                    </select>
+                </p>
+                <p>
+                    <label for="txt_ammount">金額:</label>
+                    <input id="txt_ammount" type="number" />
+                </p>
+                <p>
+                    <label for="txt_note">備考:</label>
+                    <input id="txt_note" type="text"/>
+                </p>
                 <button type="button" @click="register()">登録</button>
+                <button type="button" @click="blank()">新規</button>
             </form>
             <!-- 絞り込み画面 -->
             <form id="filterForm" action="expenditure_filter" method="POST">
@@ -35,13 +49,13 @@
                 </select>
                 <select id="select_month">
                     <th:block th:each="month:${monthSelect}">
-                    <option th:value="${month}" th:text="${month}"></option>
+                    <option th:value="${month}" th:text="${month} " th:selected="${month == currentMonth}"></option>
                     </th:block>
                 </select>
                 <button type="button" @click="filter()">フィルター</button>
             </form>
             <!-- リスト -->
-            <Table>
+            <Table id="tbl_result">
                 <thead>
                     <tr>
                         <td>ID</td>
@@ -61,7 +75,6 @@
                     </tr>
                 </tbody>
             </Table>
-            <a href="/">トップへ戻る</a>
         </div>
         <script type="text/javascript">
 
@@ -71,6 +84,9 @@
             expenditures: []
           },
           methods: {
+            window:onload = function() {
+              //this.filter();
+            },
             filter: async function() {
                 var url = "/expenditure_filter"
                 await axios.post(url,{
@@ -84,9 +100,15 @@
                 document.getElementById("txt_id").value = obj.id;
                 document.getElementById("date_register").value = obj.date;
                 document.getElementById("select_category").value = obj.category_id;
-console.log(obj.category_name);
                 document.getElementById("txt_ammount").value = obj.ammount;
                 document.getElementById("txt_note").value = obj.note;
+            },
+            blank: function() {
+                document.getElementById("txt_id").value = "";
+                document.getElementById("date_register").value = "";
+                document.getElementById("select_category").selectIndex = 1;
+                document.getElementById("txt_ammount").value = "";
+                document.getElementById("txt_note").value = "";
             },
             register:async function() {
                 var url = "expenditure_update"

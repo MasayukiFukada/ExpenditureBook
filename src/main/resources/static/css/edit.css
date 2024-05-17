@@ -1,0 +1,54 @@
+.container {
+    container-type: size;
+}
+
+@container {
+    height: 100%;
+}
+
+body {
+    /* ディスプレイの高さいっぱい */
+    min-height: 100vh;
+}
+
+#registerForm {
+    display: flex;
+}
+
+#registerForm p{
+    width: 200px;
+}
+
+#registerForm label {
+    display: flex;
+    width: 200px;
+    height: 30px;
+}
+
+#registerForm input, #registerForm date, #registerForm select{
+    width: 90%;
+    height: 30px;
+}
+
+#registerForm button {
+    width: 200px;
+    margin: 10px;
+}
+
+#filterForm {
+    height: 40px;
+    display: flex;
+    direction: column;
+}
+
+#filterForm * {
+    width:100px;
+    margin: 3px;
+}
+
+#tbl_result {
+    width:80%;
+}
+
+tr:nth-of-type(1) {
+}
