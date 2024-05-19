@@ -13,68 +13,76 @@
         <div id='app'>
             <!-- 編集画面 -->
             <form id="registerForm" action="expenditure_update" method="POST">
-                <p>
+                <div>
                     <label for="txt_id">ID:</label>
                     <input type="text" id="txt_id" />
-                </p>
-                <p>
+                </div>
+                <div>
                     <label for="date_register">登録日:</label>
                     <input type="date" id="date_register"/>
-                </p>
-                <p>
+                </div>
+                <div>
                     <label for="select_category">カテゴリ:</label>
                     <select id="select_category">
                         <th:block th:each="data:${categoryMaster}">
                             <option th:value="${data.id.id}" th:text="${data.name}"></option>
                         </th:block>
                     </select>
-                </p>
-                <p>
+                </div>
+                <div>
                     <label for="txt_ammount">金額:</label>
                     <input id="txt_ammount" type="number" />
-                </p>
-                <p>
+                </div>
+                <div>
                     <label for="txt_note">備考:</label>
                     <input id="txt_note" type="text"/>
-                </p>
-                <button type="button" @click="register()">登録</button>
-                <button type="button" @click="blank()">新規</button>
+                </div>
+                 <div class="buttonFrame">
+                     <button type="button" @click="register()">登録</button>
+                 </div>
+                 <div class="buttonFrame">
+                     <button type="button" @click="blank()">新規</button>
+                 </div>
             </form>
             <!-- 絞り込み画面 -->
-            <form id="filterForm" action="expenditure_filter" method="POST">
-                <select id="select_year">
-                    <th:block th:each="year:${yearSelect}">
-                    <option th:value="${year}" th:text="${year}"></option>
-                    </th:block>
-                </select>
-                <select id="select_month">
-                    <th:block th:each="month:${monthSelect}">
-                    <option th:value="${month}" th:text="${month} " th:selected="${month == currentMonth}"></option>
-                    </th:block>
-                </select>
-                <button type="button" @click="filter()">フィルター</button>
-            </form>
+            <div>
+                <form id="filterForm" action="expenditure_filter" method="POST">
+                    <select id="select_year">
+                        <th:block th:each="year:${yearSelect}">
+                        <option th:value="${year}" th:text="${year}"></option>
+                        </th:block>
+                    </select>
+                    <select id="select_month">
+                        <th:block th:each="month:${monthSelect}">
+                        <option th:value="${month}" th:text="${month} " th:selected="${month == currentMonth}"></option>
+                        </th:block>
+                    </select>
+                    <button type="button" @click="filter()">フィルター</button>
+                </form>
+            </div>
             <!-- リスト -->
-            <Table id="tbl_result">
-                <thead>
-                    <tr>
-                        <td>ID</td>
-                        <td>日付</td>
-                        <td>カテゴリ</td>
-                        <td>金額</td>
-                        <td>備考</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr @click="select(item)" v-for="(item,key) in expenditures">
-                        <td> {{item.id}} </td>
-                        <td> {{item.date}} </td>
-                        <td> {{item.category_name}} </td>
-                        <td> {{item.ammount}} </td>
-                        <td> {{item.note}} </td>
-                    </tr>
-                </tbody>
-            </Table>
+            <div>
+                <Table id="tbl_result">
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>日付</td>
+                            <td>カテゴリ</td>
+                            <td>金額</td>
+                            <td>備考</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr @click="select(item)" v-for="(item,key) in expenditures">
+                            <td> {{item.id}} </td>
+                            <td> {{item.date}} </td>
+                            <td> {{item.category_name}} </td>
+                            <td> {{item.ammount}} </td>
+                            <td> {{item.note}} </td>
+                        </tr>
+                    </tbody>
+                </Table>
+            </div>
         </div>
         <script type="text/javascript">
 

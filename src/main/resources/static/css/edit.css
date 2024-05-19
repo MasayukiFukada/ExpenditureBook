@@ -13,15 +13,18 @@ body {
 
 #registerForm {
     display: flex;
+    flex-direction: row;
 }
 
-#registerForm p{
+#registerForm div {
+    display: flex;
+    flex-direction: column;
     width: 200px;
+    height: 70px;
 }
 
 #registerForm label {
-    display: flex;
-    width: 200px;
+    width: auto;
     height: 30px;
 }
 
@@ -30,15 +33,22 @@ body {
     height: 30px;
 }
 
-#registerForm button {
-    width: 200px;
-    margin: 10px;
+.buttonFrame {
+  /* div の中央 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.buttonFrame button{
+  width: 170px;
+  height: 50px;
 }
 
 #filterForm {
     height: 40px;
     display: flex;
-    direction: column;
+    flex-direction: row;
 }
 
 #filterForm * {
