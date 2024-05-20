@@ -1,0 +1,49 @@
+.container {
+    container-type: size;
+}
+
+body {
+    /* ディスプレイの高さいっぱい */
+    min-height: 100vh;
+}
+
+.registerForm {
+    display: flex;
+    flex-direction: row;
+}
+
+.inputPart {
+    display: flow;;
+}
+
+.inputPart div {
+    width: 200px;
+}
+
+.buttonPart {
+    width: 200px;
+}
+
+.registerForm label {
+    display: flex;
+    width: auto;
+    height: 30px;
+}
+
+.registerForm input, .registerForm select{
+    width: 90%;
+    max-height: 30px;
+}
+
+.buttonFrame {
+  /* div の中央 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 54px;
+}
+
+.buttonFrame button {
+    width: 80%;
+    height: 80%;
+}

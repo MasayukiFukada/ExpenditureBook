@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <link th:href="@{/css/design_debug.css}" rel="stylesheet" />
+        <!-- <link th:href="@{/css/design_debug.css}" rel="stylesheet" /> -->
         <link th:href="@{/css/edit.css}" rel="stylesheet" />
         <script src="https://unpkg.com/vue@2.7.16"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -92,9 +92,6 @@
             expenditures: []
           },
           methods: {
-            window:onload = function() {
-              //this.filter();
-            },
             filter: async function() {
                 var url = "/expenditure_filter"
                 await axios.post(url,{
@@ -105,18 +102,18 @@
                 })
             },
             select: function(obj) {
-                document.getElementById("txt_id").value = obj.id;
-                document.getElementById("date_register").value = obj.date;
-                document.getElementById("select_category").value = obj.category_id;
-                document.getElementById("txt_ammount").value = obj.ammount;
-                document.getElementById("txt_note").value = obj.note;
+                document.getElementById("txt_id").value = obj.id
+                document.getElementById("date_register").value = obj.date
+                document.getElementById("select_category").value = obj.category_id
+                document.getElementById("txt_ammount").value = obj.ammount
+                document.getElementById("txt_note").value = obj.note
             },
             blank: function() {
-                document.getElementById("txt_id").value = "";
-                document.getElementById("date_register").value = "";
-                document.getElementById("select_category").selectIndex = 1;
-                document.getElementById("txt_ammount").value = "";
-                document.getElementById("txt_note").value = "";
+                document.getElementById("txt_id").value = ""
+                document.getElementById("date_register").value = ""
+                document.getElementById("select_category").selectIndex = 1
+                document.getElementById("txt_ammount").value = ""
+                document.getElementById("txt_note").value = ""
             },
             register:async function() {
                 var url = "expenditure_update"
@@ -127,9 +124,12 @@
                     ammount: document.getElementById("txt_ammount").value,
                     note: document.getElementById("txt_note").value
                 }).then(x => {
-                    this.filter();
+                    this.filter()
                 })
             }
+          },
+          beforeMount() {
+            this.filter()
           }
         })
         </script>

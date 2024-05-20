@@ -2,10 +2,6 @@
     container-type: size;
 }
 
-@container {
-    height: 100%;
-}
-
 body {
     /* ディスプレイの高さいっぱい */
     min-height: 100vh;
@@ -25,12 +21,13 @@ body {
 
 #registerForm label {
     width: auto;
+    vertical-align: middle;
     height: 30px;
 }
 
-#registerForm input, #registerForm date, #registerForm select{
+#registerForm input, #registerForm select{
     width: 90%;
-    height: 30px;
+    height: 60%;
 }
 
 .buttonFrame {

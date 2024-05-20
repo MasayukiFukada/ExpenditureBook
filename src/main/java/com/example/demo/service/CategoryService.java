@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.entity.CategoryEntity;
 import com.example.demo.model.Categories;
 import com.example.demo.model.Category;
+import com.example.demo.model.JSONCategory;
+import com.example.demo.model.JSONExpenditure;
 import com.example.demo.primitive.CategoryNote;
 import com.example.demo.primitive.ID;
 import com.example.demo.repository.CategoryRepository;
@@ -107,5 +109,18 @@ public class CategoryService {
         }
         item.setUpdate_at(LocalDateTime.now());
         return item;
+    }
+
+    public JSONCategory convertModelToJSONModel(Category model) {
+        JSONCategory converted = new JSONCategory();
+        converted.setId(model.getId().getId());
+        converted.setName(model.getName());
+        converted.setType(model.getType());
+        converted.setNote(model.getNote().getNote());
+        converted.setEnable(model.is_enable());
+        converted.setSortOrderNo(model.getSort_order_no());
+        converted.setCreateAt(model.getCreate_at().toString());
+        converted.setUpdateAt(model.getUpdate_at().toString());
+        return converted;
     }
 }
