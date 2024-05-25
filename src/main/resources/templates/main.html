@@ -16,7 +16,7 @@
             <div>
                 <select id="select_year">
                     <th:block th:each="data:${year}">
-                        <option th:value="${data}" th:text="${data}"></option>
+                        <option th:value="${data}" th:text="${data}" th:selected="${data == currentYear}"></option>
                     </th:block>
                 </select>
             </div>
