@@ -1,12 +1,16 @@
 package com.example.demo.primitive;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import com.fasterxml.uuid.Generators;
 
 import lombok.Getter;
 
-public class ID {
+public class ID implements Serializable {
+    // Serializable で必須
+    private static final long serialVersionUID = 1L;
+
     @Getter
     private String id = "";
     @Getter

@@ -12,15 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.example.demo.model.Categories;
 import com.example.demo.model.Category;
 import com.example.demo.model.JSONCategory;
-import com.example.demo.model.JSONExpenditure;
 import com.example.demo.primitive.CategoryNote;
 import com.example.demo.primitive.ID;
 import com.example.demo.service.CategoryService;
@@ -35,7 +32,7 @@ public class CategoryMasterViewController {
         return "category_master.html";
     }
 
-    @RequestMapping(value = "/categories", method = RequestMethod.GET)
+    @GetMapping("/categories")
     @ResponseBody
     public ResponseEntity<List<JSONCategory>> all() {
         List<JSONCategory> found = categoryService.getAll().getItems().stream()
@@ -44,7 +41,7 @@ public class CategoryMasterViewController {
     }
 
     // フォームから JSON で受け取るのは Map
-    @RequestMapping(value = "/category_update", method = RequestMethod.POST)
+    @PostMapping("/category_update")
     public String categoryAppend(@RequestBody Map<String, String> body) {
         Category model = new Category();
         final String getID = body.get("id");

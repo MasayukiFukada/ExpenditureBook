@@ -1,12 +1,72 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <!-- <link th:href="@{/css/design_debug.css}" rel="stylesheet" /> -->
+    <link th:href="@{/css/main.css}" rel="stylesheet" />
+    <script src="https://unpkg.com/vue@2.7.16"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <title>出費管理</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
-    <div><a href="/edit">項目編集画面へ</a></div>
-    <div><a href="/category_master">カテゴリマスタメンテ画面へ</a></div>
+    <div id="app">
+        <div><a href="/edit">項目編集画面へ</a></div>
+        <div><a href="/category_master">カテゴリマスタメンテ画面へ</a></div>
+        <div>
+            <div>
+                <select id="select_year">
+                    <th:block th:each="data:${year}">
+                        <option th:value="${data}" th:text="${data}"></option>
+                    </th:block>
+                </select>
+            </div>
+            <div>
+                <button type="button" @click="filter()">表示</button>
+            </div>
+            <div>
+                <Table id="tbl_result">
+                    <thead>
+                        <tr>
+                            <td>月</td>
+                            <td>小計</td>
+                            <td>家賃</td>
+                            <td>医療</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr @click="select(item)" v-for="(item,key) in aggregates.items">
+                            <td> {{item.month}} </td>
+                            <td> {{item.subTotalAmmount}} </td>
+                            <td v-for="(c_item,c_key) in item.items" >
+                                {{c_item.categoryAmmount}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </Table>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
 
+     var app = new Vue({
+       el: '#app',
+       data: {
+         aggregates: [] // 仮 PlaceHolder
+       },
+       methods: {
+         filter: async function() {
+             var url = "/aggregate_filter"
+             await axios.post(url,{
+                 year: document.getElementById("select_year").value
+             }).then(x => {
+                 this.aggregates = x.data
+             })
+         }
+       },
+       beforeMount() {
+         this.filter()
+       }
+     })
+     </script>
 </body>
 </html>

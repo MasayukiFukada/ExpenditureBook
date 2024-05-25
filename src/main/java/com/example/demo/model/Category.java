@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.StringJoiner;
 
@@ -11,7 +12,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Category {
+public class Category implements Serializable {
+    // Serializable で必須
+    private static final long serialVersionUID = 1L;
+
     private ID id;
     private int type;
     private String name;

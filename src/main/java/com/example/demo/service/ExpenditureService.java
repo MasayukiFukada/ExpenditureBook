@@ -27,7 +27,14 @@ public class ExpenditureService {
     @Autowired
     ExpenditureRepository repository;
 
-    public Expenditures getMonthly(int year, int month) {
+    public Expenditures retrieve(int year) {
+        List<ExpenditureEntity> entities = repository.findAllByOrderByIdDesc();
+        Expenditures newExpenditures = new Expenditures(entities.stream().filter(i -> i.getDate().getYear() == year)
+                .map(i -> convertEntityToModel(i)).collect(Collectors.toList()));
+        return newExpenditures;
+    }
+
+    public Expenditures retrieve(int year, int month) {
         List<ExpenditureEntity> entities = repository.findAllByOrderByIdDesc();
         Expenditures newExpenditures = new Expenditures(entities.stream().filter(i -> i.getDate().getYear() == year)
                 .filter(i -> i.getDate().getMonthValue() == month).map(i -> convertEntityToModel(i))

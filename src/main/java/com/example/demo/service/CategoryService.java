@@ -13,7 +13,6 @@ import com.example.demo.entity.CategoryEntity;
 import com.example.demo.model.Categories;
 import com.example.demo.model.Category;
 import com.example.demo.model.JSONCategory;
-import com.example.demo.model.JSONExpenditure;
 import com.example.demo.primitive.CategoryNote;
 import com.example.demo.primitive.ID;
 import com.example.demo.repository.CategoryRepository;

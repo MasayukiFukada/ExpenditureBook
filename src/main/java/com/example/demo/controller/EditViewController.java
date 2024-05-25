@@ -13,9 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.demo.model.Categories;
@@ -59,16 +58,16 @@ public class EditViewController {
     // ResponseBody のアノテーション付ける
     // ResponseEntity を返す
 
-    @RequestMapping(value = "/expenditure_filter", method = RequestMethod.POST)
+    @PostMapping("/expenditure_filter")
     @ResponseBody
     public ResponseEntity<List<JSONExpenditure>> search(@RequestBody Map<String, String> body) {
         List<JSONExpenditure> found = expenditureService
-                .getMonthly(Integer.valueOf(body.get("year")), Integer.valueOf(body.get("month"))).getItems().stream()
+                .retrieve(Integer.valueOf(body.get("year")), Integer.valueOf(body.get("month"))).getItems().stream()
                 .map(item -> expenditureService.convertModelToJSONModel(item)).collect(Collectors.toList());
         return new ResponseEntity<>(found, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/expenditure_update", method = RequestMethod.POST)
+    @PostMapping("/expenditure_update")
     public String appendItem(@RequestBody Map<String, String> body) {
         // ちゃんと日付が入っていること
         if (body.get("date") != "") {
