@@ -21,7 +21,9 @@
                 </select>
             </div>
             <div>
-                <button type="button" @click="filter()">表示</button>
+                <div><button type="button" @click="filter()">表示</button></div>
+                <div><input type="file" id="input_file"></div>
+                <div><button type="button" @click="loadCSV()">CSV読み込み</button></div>
             </div>
             <div>
                 <Table id="tbl_result">
@@ -73,6 +75,43 @@
              }).then(x => {
                  this.aggregates = x.data
              })
+         },
+         send_csv: async function(values) {
+            var url = "/register_csv"
+            await axios.post(url,{
+                year: values[0],
+                month: values[1],
+                day: values[2],
+                ammount: values[3],
+                category_id: values[4],
+                note: values[5]
+            }).then(x => {
+                console.log(x.data)
+            })
+         },
+         loadCSV: function() {
+            // CSV 読み込み。
+            // MEMO: 権限とか要るかと思ったけど不要そう
+            let reader = new FileReader()
+            reader.onload = function (e) {
+                // 読み込み完了時の処理
+                // 改行コードは環境に依るかも
+                let rows = e.target.result.split(/\r\n/)
+                var firstLine = true
+                rows.forEach((item) => {
+                    if(firstLine) {
+                        // 見出し行だけ飛ばす
+                        firstLine = false
+                    }else{
+                        let values = item.split(/,/)
+                        if(values.length > 1) {
+                            app.send_csv(values)
+                        }
+                    }
+                 })
+            }
+            let tag =document.getElementById("input_file")
+            reader.readAsText(tag.files[0])
          }
        },
        beforeMount() {

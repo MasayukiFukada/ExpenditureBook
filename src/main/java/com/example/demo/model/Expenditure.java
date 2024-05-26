@@ -14,7 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Expenditure {
-    private ID id;
+    private ID id = new ID();
     private ExpenditureDate date;
     private Money ammount;
     private Category category;
@@ -26,7 +26,7 @@ public class Expenditure {
     public String toString() {
         StringJoiner joiner = new StringJoiner(",");
         joiner.add("ID: " + this.id.getId());
-//        joiner.add(" DATE: " + this.getDate().toString());
+        joiner.add(" DATE: " + this.getDate().getDate().toString());
         joiner.add(" MONEY: " + this.ammount.getValue());
         joiner.add(" CATEGORY: " + this.category.getId().getId());
         joiner.add(" NOTE: " + this.note.getNote());

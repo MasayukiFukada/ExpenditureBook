@@ -53,6 +53,11 @@ body {
     margin: 3px;
 }
 
+#div_table {
+    overflow: scroll;
+    height: 500px;
+}
+
 #tbl_result {
     width:80%;
 }

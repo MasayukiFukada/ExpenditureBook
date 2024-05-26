@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -18,9 +19,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.demo.model.Category;
+import com.example.demo.model.Expenditure;
+import com.example.demo.model.JSONCSVResult;
 import com.example.demo.model.JSONTotalAggregate;
+import com.example.demo.primitive.ExpenditureDate;
+import com.example.demo.primitive.ID;
+import com.example.demo.primitive.ItemNote;
+import com.example.demo.primitive.Money;
 import com.example.demo.service.AggregateService;
 import com.example.demo.service.CategoryService;
+import com.example.demo.service.ExpenditureService;
 
 @Controller
 public class MainViewController {
@@ -29,6 +38,9 @@ public class MainViewController {
 
     @Autowired
     AggregateService aggregateService;
+
+    @Autowired
+    ExpenditureService expenditureService;
 
     @GetMapping(path = "/")
     public String mainView(Model model) {
@@ -51,5 +63,30 @@ public class MainViewController {
         int year = Integer.valueOf(body.get("year"));
         JSONTotalAggregate found = aggregateService.convertModelToJSONModel(aggregateService.getAnnualy(year));
         return new ResponseEntity<>(found, HttpStatus.OK);
+    }
+
+    @PostMapping("/register_csv")
+    @ResponseBody
+    public ResponseEntity<JSONCSVResult> registerFromCSV(@RequestBody Map<String, String> body) {
+        // System.out.println(body);
+        Expenditure newItem = new Expenditure();
+        newItem.getId().setNewVer7ID(); // 新規で ID を振る
+        newItem.setDate(
+                new ExpenditureDate(
+                        LocalDate.of(
+                                Integer.valueOf(body.get("year")),
+                                Integer.valueOf(body.get("month")),
+                                Integer.valueOf(body.get("day")))));
+        newItem.setAmmount(new Money(Integer.valueOf(body.get("ammount"))));
+        Category tempCategory = new Category();
+        tempCategory.setId(new ID(body.get("category_id"))); // とりあえず ID だけ
+        newItem.setCategory(tempCategory);
+        newItem.setNote(new ItemNote(body.get("note")));
+        newItem.setCreate_at(LocalDateTime.now());
+        newItem.setUpdate_at(LocalDateTime.now());
+
+        JSONCSVResult result = new JSONCSVResult();
+        result.setResult(expenditureService.insert(newItem));
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }
