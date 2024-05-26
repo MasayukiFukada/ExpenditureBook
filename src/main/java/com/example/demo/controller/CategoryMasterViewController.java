@@ -45,7 +45,7 @@ public class CategoryMasterViewController {
     public String categoryAppend(@RequestBody Map<String, String> body) {
         Category model = new Category();
         final String getID = body.get("id");
-        if (getID == "") {
+        if (getID.equals("")) {
             ID newID = new ID();
             newID.setNewVer4ID();
             model.setId(newID);

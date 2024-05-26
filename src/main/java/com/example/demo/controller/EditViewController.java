@@ -73,7 +73,7 @@ public class EditViewController {
         if (body.get("date") != "") {
             Expenditure model = new Expenditure();
             final String getID = body.get("id");
-            if (getID == "") {
+            if (getID.equals("")) {
                 ID newID = new ID();
                 newID.setNewVer7ID();
                 model.setId(newID);

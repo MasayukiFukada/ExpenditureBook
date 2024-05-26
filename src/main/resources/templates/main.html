@@ -27,17 +27,29 @@
                 <Table id="tbl_result">
                     <thead>
                         <tr>
-                            <td>月</td>
-                            <td>小計</td>
-                            <td>家賃</td>
-                            <td>医療</td>
+                            <td class="tbl_head">月</td>
+                            <td class="tbl_head">小計</td>
+                            <td class="tbl_head">住居</td>
+                            <td class="tbl_head">水道光熱</td>
+                            <td class="tbl_head">通信</td>
+                            <td class="tbl_head">保険</td>
+                            <td class="tbl_head">食費</td>
+                            <td class="tbl_head">日用</td>
+                            <td class="tbl_head">被服</td>
+                            <td class="tbl_head">交際</td>
+                            <td class="tbl_head">交通</td>
+                            <td class="tbl_head">趣味</td>
+                            <td class="tbl_head">教育</td>
+                            <td class="tbl_head">医療</td>
+                            <td class="tbl_head">特別</td>
+                            <td class="tbl_head">雑費</td>
                         </tr>
                     </thead>
                     <tbody>
                         <tr @click="select(item)" v-for="(item,key) in aggregates.items">
-                            <td> {{item.month}} </td>
-                            <td> {{item.subTotalAmmount}} </td>
-                            <td v-for="(c_item,c_key) in item.items" >
+                            <td class="td_data_month"> {{item.month}} </td>
+                            <td class="td_data_sum"> {{item.subTotalAmmount}} </td>
+                            <td class="td_data_ammount" v-for="(c_item,c_key) in item.items" >
                                 {{c_item.categoryAmmount}}
                             </td>
                         </tr>
