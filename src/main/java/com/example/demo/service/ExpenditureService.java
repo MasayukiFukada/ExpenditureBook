@@ -29,16 +29,18 @@ public class ExpenditureService {
 
     public Expenditures retrieve(int year) {
         List<ExpenditureEntity> entities = repository.findAllByOrderByIdDesc();
-        Expenditures newExpenditures = new Expenditures(entities.stream().filter(i -> i.getDate().getYear() == year)
-                .map(i -> convertEntityToModel(i)).collect(Collectors.toList()));
+        Expenditures newExpenditures = new Expenditures(
+                entities.stream().filter(i -> i.getDate().getYear() == year).map(i -> convertEntityToModel(i))
+                        .collect(Collectors.toList()));
         return newExpenditures;
     }
 
     public Expenditures retrieve(int year, int month) {
         List<ExpenditureEntity> entities = repository.findAllByOrderByIdDesc();
-        Expenditures newExpenditures = new Expenditures(entities.stream().filter(i -> i.getDate().getYear() == year)
-                .filter(i -> i.getDate().getMonthValue() == month).map(i -> convertEntityToModel(i))
-                .collect(Collectors.toList()));
+        Expenditures newExpenditures = new Expenditures(
+                entities.stream().filter(i -> i.getDate().getYear() == year)
+                        .filter(i -> i.getDate().getMonthValue() == month).map(i -> convertEntityToModel(i))
+                        .collect(Collectors.toList()));
         return newExpenditures;
     }
 
@@ -75,6 +77,7 @@ public class ExpenditureService {
         return true;
     }
 
+    // TODO: カテゴリ情報が必要なので static に出来ないかも？
     private Expenditure convertEntityToModel(ExpenditureEntity entity) {
         Expenditure item = new Expenditure();
         item.setId(new ID(entity.getId()));
@@ -87,7 +90,7 @@ public class ExpenditureService {
         return item;
     }
 
-    private ExpenditureEntity convertModelToEntity(Expenditure model) {
+    private static ExpenditureEntity convertModelToEntity(Expenditure model) {
         ExpenditureEntity item = new ExpenditureEntity();
         item.setId(model.getId().getId());
         item.setAmmount(model.getAmmount().getValue());
@@ -103,7 +106,7 @@ public class ExpenditureService {
         return item;
     }
 
-    public JSONExpenditure convertModelToJSONModel(Expenditure model) {
+    public static JSONExpenditure convertModelToJSONModel(Expenditure model) {
         JSONExpenditure converted = new JSONExpenditure();
         converted.setId(model.getId().getId());
         converted.setDate(model.getDate().getDate().toString());

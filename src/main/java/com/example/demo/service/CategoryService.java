@@ -39,8 +39,9 @@ public class CategoryService {
 
     public Categories getEnable() {
         List<CategoryEntity> entities = repository.findByOrderBySortOrderNoAsc();
-        Categories newCategories = new Categories(entities.stream().filter(i -> i.is_enable())
-                .map(i -> convertEntityToModel(i)).collect(Collectors.toList()));
+        Categories newCategories = new Categories(
+                entities.stream().filter(i -> i.is_enable()).map(i -> convertEntityToModel(i))
+                        .collect(Collectors.toList()));
         return newCategories;
     }
 
@@ -82,7 +83,7 @@ public class CategoryService {
         return true;
     }
 
-    private Category convertEntityToModel(CategoryEntity entity) {
+    private static Category convertEntityToModel(CategoryEntity entity) {
         Category item = new Category(entity.getType(), entity.getName(), new CategoryNote(entity.getNote()));
         item.setId(new ID(entity.getId()));
         item.setNote(new CategoryNote(entity.getNote()));
@@ -93,7 +94,7 @@ public class CategoryService {
         return item;
     }
 
-    private CategoryEntity convertModelToEntity(Category model) {
+    private static CategoryEntity convertModelToEntity(Category model) {
         CategoryEntity item = new CategoryEntity();
         item.setId(model.getId().getId());
         item.setNote(model.getNote().getNote());
@@ -110,7 +111,7 @@ public class CategoryService {
         return item;
     }
 
-    public JSONCategory convertModelToJSONModel(Category model) {
+    public static JSONCategory convertModelToJSONModel(Category model) {
         JSONCategory converted = new JSONCategory();
         converted.setId(model.getId().getId());
         converted.setName(model.getName());

@@ -51,7 +51,7 @@ public class MonthlyCommentService {
         return true;
     }
 
-    private MonthlyComment convertEntityToModel(MonthlyCommentEntity entity) {
+    private static MonthlyComment convertEntityToModel(MonthlyCommentEntity entity) {
         MonthlyComment item = new MonthlyComment();
         item.setId(new ID(entity.getId()));
         item.setYear(new Year(entity.getYear()));
@@ -60,7 +60,7 @@ public class MonthlyCommentService {
         return item;
     }
 
-    private MonthlyCommentEntity convertModelToEntity(MonthlyComment model) {
+    private static MonthlyCommentEntity convertModelToEntity(MonthlyComment model) {
         MonthlyCommentEntity item = new MonthlyCommentEntity();
         item.setId(model.getId().getId());
         item.setYear(model.getYear().getValue());

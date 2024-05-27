@@ -49,7 +49,7 @@ public class AggregateService {
         return copy;
     }
 
-    public JSONTotalAggregate convertModelToJSONModel(TotalAggregate model) {
+    public static JSONTotalAggregate convertModelToJSONModel(TotalAggregate model) {
         JSONTotalAggregate totalAggregate = new JSONTotalAggregate();
         totalAggregate.setTotalAmmount(model.getTotalAmmount().getValue());
         List<JSONSubAggregate> subItems = new ArrayList<JSONSubAggregate>();
