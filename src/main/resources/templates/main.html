@@ -3,10 +3,10 @@
 <head>
     <!-- <link th:href="@{/css/design_debug.css}" rel="stylesheet" /> -->
     <link th:href="@{/css/main.css}" rel="stylesheet" />
-    <link th:href="@{/c3js/c3.css}" rel="stylesheet" />
+    <link th:href="@{/chart/insight.css}" rel="stylesheet" />
     <!-- ◆◆◆ d3.js はバージョンに注意 -->
-    <script src="/c3js/d3.js"  charset="utf-8"></script>
-    <script src="/c3js/c3.js"></script>
+    <script src="/chart/d3.js"  charset="utf-8"></script>
+    <script src="/chart/billboard.js"></script>
     <script src="https://unpkg.com/vue@2.7.16"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <title>出費管理</title>
@@ -89,14 +89,17 @@
              })
          },
          select: function(obj) {
+             // 各月のデータ
              this.series = []
+             var array = []
+             array.push("各月")
+             array.push(0) // 0月
              this.aggregates.items.forEach((item) =>{
-                 var array = []
-                 array.push(item.month)
                  array.push(item.subTotalAmmount)
-                 this.series.push(array)
              })
+             this.series.push(array)
 
+             // 内訳のデータ
              this.columns = []
              obj.items.forEach((item) => {
                 // NOTE: 値がゼロでも上手く捌いてくれる
@@ -109,16 +112,13 @@
              this.chart.load({columns: this.columns})
          },
          create_chart: function() {
-            this.subTotalChart = c3.generate({
+            this.subTotalChart = bb.generate({
                 bindto: '#subTotalChart',
                 data: {
-                    type : 'bar'
+                    type : 'line'
                 ,   columns: this.columns},
-                donut: {
-                    title: '月の消費割合'
-                }
             }),
-            this.chart = c3.generate({
+            this.chart = bb.generate({
                 bindto: '#chart',
                 data: {
                     type : 'donut'
