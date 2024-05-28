@@ -14,3 +14,11 @@
     text-align: right;
 }
 
+.diagram {
+    display: flex;
+    flex-direction: row;
+}
+
+.diagram div {
+    width: 50%;
+}

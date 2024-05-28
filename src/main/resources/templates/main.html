@@ -29,6 +29,10 @@
                 <div><input type="file" id="input_file"></div>
                 <div><button type="button" @click="loadCSV()">CSV読み込み</button></div>
             </div>
+            <div class="diagram">
+                <div id="chart"></div>
+                <div id="subTotalChart"></div>
+            </div>
             <div>
                 <Table id="tbl_result">
                     <thead>
@@ -62,7 +66,6 @@
                     </tbody>
                 </Table>
             </div>
-            <div id="chart"></div>
         </div>
     </div>
     <script type="text/javascript">
@@ -71,7 +74,10 @@
        el: '#app',
        data: {
          aggregates: [],
-         columns: []
+         series:[],
+         columns: [],
+         chart: null,
+         subTotalChart: null
        },
        methods: {
          filter: async function() {
@@ -83,26 +89,44 @@
              })
          },
          select: function(obj) {
+             this.series = []
+             this.aggregates.items.forEach((item) =>{
+                 var array = []
+                 array.push(item.month)
+                 array.push(item.subTotalAmmount)
+                 this.series.push(array)
+             })
+
              this.columns = []
              obj.items.forEach((item) => {
-                // 金額が発生した項目だけを追加
-                // パーセンテージは自動で計算してくれる
-                if(item.categoryAmmount > 0) {
-                    var array = []
-                    array.push(item.categoryName)
-                    array.push(item.categoryAmmount)
-                    this.columns.push(array)
-                }
+                // NOTE: 値がゼロでも上手く捌いてくれる
+                var array = []
+                array.push(item.categoryName)
+                array.push(item.categoryAmmount)
+                this.columns.push(array)
              })
-             this.update_chart()
+             this.subTotalChart.load({columns: this.series})
+             this.chart.load({columns: this.columns})
          },
-         update_chart: function() {
-            c3.generate({
+         create_chart: function() {
+            this.subTotalChart = c3.generate({
+                bindto: '#subTotalChart',
+                data: {
+                    type : 'bar'
+                ,   columns: this.columns},
+                donut: {
+                    title: '月の消費割合'
+                }
+            }),
+            this.chart = c3.generate({
                 bindto: '#chart',
                 data: {
-                    type : 'pie'
-                ,   columns: this.columns
-                }})
+                    type : 'donut'
+                ,   columns: this.columns},
+                donut: {
+                    title: '月の消費割合'
+                }
+            })
          },
          send_csv: async function(values) {
             var url = "/register_csv"
@@ -143,7 +167,12 @@
          }
        },
        beforeMount() {
-         this.filter()
+           // NOTE: コンポーネントがマウントされる前
+           this.filter()
+       },
+       mounted() {
+           // NOTE: コンポーネントがマウントされた後
+           this.create_chart()
        }
      })
      </script>
