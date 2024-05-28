@@ -3,6 +3,10 @@
 <head>
     <!-- <link th:href="@{/css/design_debug.css}" rel="stylesheet" /> -->
     <link th:href="@{/css/main.css}" rel="stylesheet" />
+    <link th:href="@{/c3js/c3.css}" rel="stylesheet" />
+    <!-- ◆◆◆ d3.js はバージョンに注意 -->
+    <script src="/c3js/d3.js"  charset="utf-8"></script>
+    <script src="/c3js/c3.js"></script>
     <script src="https://unpkg.com/vue@2.7.16"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <title>出費管理</title>
@@ -58,6 +62,7 @@
                     </tbody>
                 </Table>
             </div>
+            <div id="chart"></div>
         </div>
     </div>
     <script type="text/javascript">
@@ -65,7 +70,8 @@
      var app = new Vue({
        el: '#app',
        data: {
-         aggregates: [] // 仮 PlaceHolder
+         aggregates: [],
+         columns: []
        },
        methods: {
          filter: async function() {
@@ -75,6 +81,28 @@
              }).then(x => {
                  this.aggregates = x.data
              })
+         },
+         select: function(obj) {
+             this.columns = []
+             obj.items.forEach((item) => {
+                // 金額が発生した項目だけを追加
+                // パーセンテージは自動で計算してくれる
+                if(item.categoryAmmount > 0) {
+                    var array = []
+                    array.push(item.categoryName)
+                    array.push(item.categoryAmmount)
+                    this.columns.push(array)
+                }
+             })
+             this.update_chart()
+         },
+         update_chart: function() {
+            c3.generate({
+                bindto: '#chart',
+                data: {
+                    type : 'pie'
+                ,   columns: this.columns
+                }})
          },
          send_csv: async function(values) {
             var url = "/register_csv"
