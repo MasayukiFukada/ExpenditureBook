@@ -33,6 +33,9 @@
                 <div id="chart"></div>
                 <div id="subTotalChart"></div>
             </div>
+            <div class="diagram">
+                <div id="categoryChart"></div>
+            </div>
             <div>
                 <Table id="tbl_result">
                     <thead>
@@ -76,8 +79,10 @@
          aggregates: [],
          series:[],
          columns: [],
+         category: [],
          chart: null,
-         subTotalChart: null
+         subTotalChart: null,
+         categoryChart: null
        },
        methods: {
          filter: async function() {
@@ -99,6 +104,23 @@
              })
              this.series.push(array)
 
+             // 分類ごとのデータ
+             this.category = []
+             let isFirst = true
+             this.aggregates.items.forEach((item) =>{
+                if(isFirst) {
+                    isFirst = false
+                    item.items.forEach((cat) => {
+                        this.category.push([cat.categoryName]);
+                    })
+                }
+                let index = 0
+                item.items.forEach((cat) =>{
+                    this.category[index].push(cat.categoryAmmount)
+                    index = index + 1
+                })
+             })
+
              // 内訳のデータ
              this.columns = []
              obj.items.forEach((item) => {
@@ -109,6 +131,7 @@
                 this.columns.push(array)
              })
              this.subTotalChart.load({columns: this.series})
+             this.categoryChart.load({columns: this.category})
              this.chart.load({columns: this.columns})
          },
          create_chart: function() {
@@ -117,6 +140,12 @@
                 data: {
                     type : 'line'
                 ,   columns: this.columns},
+            }),
+            this.categoryChart = bb.generate({
+                bindto: '#categoryChart',
+                data: {
+                    type : 'line'
+                ,   columns: this.category},
             }),
             this.chart = bb.generate({
                 bindto: '#chart',

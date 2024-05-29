@@ -17,6 +17,6 @@
 ## 技術スタック
 
 * Java + Spring Boot + Spring Data JPA
-* JavaScript
+* Vue.js (javascript)
 * MySQL
 
