@@ -5,75 +5,149 @@
         <script src="https://unpkg.com/vue@2.7.16"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <title>出費管理</title>
+        <!-- ◆◆◆ Font awesome -->
+        <link href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" rel="stylesheet">
         <!-- ◆◆◆ Bulma -->
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
-        <!-- ◆◆◆ Css -->
-        <!-- <link th:href="@{/css/design_debug.css}" rel="stylesheet" /> -->
-        <link th:href="@{/css/edit.css}" rel="stylesheet" />
     </head>
-    <body class="container">
-        <a href="/">トップへ戻る</a>
+    <body>
         <div id='app'>
-            <!-- 編集画面 -->
-            <form id="registerForm" action="expenditure_update" method="POST">
-                <div>
-                    <label for="txt_id">ID:</label>
-                    <input type="text" id="txt_id" />
+            <section class="hero is-small is-primary">
+                <div class="hero-heard">
+                    <div class="navbar">
+                        <div class="navbar-menu">
+                            <div class="navvar-start">
+                                <a class="navbar-item is-active" href="/">トップへ戻る</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label for="date_register">登録日:</label>
-                    <input type="date" id="date_register"/>
+                <div class="hero-body">
+                    <p class="title">支出情報入力</p>
                 </div>
-                <div>
-                    <label for="select_category">カテゴリ:</label>
-                    <select id="select_category">
-                        <th:block th:each="data:${categoryMaster}">
-                            <option th:value="${data.id.id}" th:text="${data.name}"></option>
-                        </th:block>
-                    </select>
-                </div>
-                <div>
-                    <label for="txt_ammount">金額:</label>
-                    <input id="txt_ammount" type="number" />
-                </div>
-                <div>
-                    <label for="txt_note">備考:</label>
-                    <input id="txt_note" type="text"/>
-                </div>
-                 <div class="buttonFrame">
-                     <button type="button" @click="register()">登録</button>
-                 </div>
-                 <div class="buttonFrame">
-                     <button type="button" @click="blank()">新規</button>
-                 </div>
-            </form>
+            </section>
             <!-- 絞り込み画面 -->
-            <div>
-                <form id="filterForm" action="expenditure_filter" method="POST">
-                    <select id="select_year">
-                        <th:block th:each="year:${yearSelect}">
-                        <option th:value="${year}" th:text="${year}"></option>
-                        </th:block>
-                    </select>
-                    <select id="select_month">
-                        <th:block th:each="month:${monthSelect}">
-                        <option th:value="${month}" th:text="${month} " th:selected="${month == currentMonth}"></option>
-                        </th:block>
-                    </select>
-                    <button type="button" @click="filter()">フィルター</button>
-                </form>
-            </div>
+            <section class="section columns">
+                <div class="column is-one-fifth">
+                    <div id="editor" class="card">
+                        <div class="card-header">
+                            <p class="card-header-title">フィルター</p>
+                        </div>
+                        <div class="card-content">
+                            <div class="columns">
+                                <div class="column is-half">
+                                    <div class="select is-rounded">
+                                        <select id="select_year">
+                                            <th:block th:each="year:${yearSelect}">
+                                            <option th:value="${year}" th:text="${year}"></option>
+                                            </th:block>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="column is-half">
+                                    <div class="select is-rounded">
+                                        <select id="select_month">
+                                            <th:block th:each="month:${monthSelect}">
+                                            <option th:value="${month}" th:text="${month} " th:selected="${month == currentMonth}"></option>
+                                            </th:block>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="#editor" class="card-footer-item has-text-grey-light" @click="onPush_filter()">適用</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <!-- 編集画面 -->
+                    <div id="editor" class="card">
+                        <div class="card-header">
+                            <p class="card-header-title">支出情報</p>
+                        </div>
+                        <div class="card-content">
+                            <div class="columns">
+                                <div class="column">
+                                    <div class="field">
+                                        <label class="label is-small">登録日:</label>
+                                        <p class="control has-icons-left">
+                                            <input id="date_register" class="input" type="date">
+                                            <span class="icon is-small is-left">
+                                                <i class="far fa-calendar"></i>
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="column">
+                                    <div class="field">
+                                        <label class="label is-small">ID:</label>
+                                        <p class="control has-icons-left">
+                                            <input id="txt_id" class="input" type="text" placeholder="空なら新規、値があれば更新">
+                                            <span class="icon is-small is-left">
+                                                <i class="far fa-address-card"></i>
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="columns">
+                                <div class="column is-one-fifth">
+                                    <div class="field">
+                                        <label class="label is-small">カテゴリ:</label>
+                                        <div class="control" style="text-align: center;">
+                                            <div class="select">
+                                                <select id="select_category">
+                                                    <th:block th:each="data:${categoryMaster}">
+                                                        <option th:value="${data.id.id}" th:text="${data.name}"></option>
+                                                    </th:block>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="column">
+                                    <div class="field">
+                                        <label class="label is-small">金額:</label>
+                                        <p class="control has-icons-left">
+                                            <input id="txt_ammount" class="input" type="number" />
+                                            <span class="icon is-small is-left">
+                                                <i class="fas fa-yen-sign"></i>
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="column">
+                                    <div class="field">
+                                        <label class="label is-small">備考:</label>
+                                        <p class="control has-icons-left">
+                                            <input id="txt_note" class="input" type="text" placeholder=""/>
+                                            <span class="icon is-small is-left">
+                                                <i class="far fa-comment"></i>
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="#editor" class="card-footer-item has-text-grey-light" @click="onPush_new()">新規作成</a>
+                            <a href="#editor" class="card-footer-item" @click="onPush_submit()">更新</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
             <!-- リスト -->
-            <div id="div_table">
-                <Table id="tbl_result">
+            <div class="section is-centered">
+                <table id="tbl_result" class="table is-bordered is-striped is-hoverable">
                     <thead>
                         <tr>
-                            <td>ID</td>
-                            <td>日付</td>
-                            <td>カテゴリ</td>
-                            <td>金額</td>
-                            <td>備考</td>
+                            <th>ID</th>
+                            <th>日付</th>
+                            <th>カテゴリ</th>
+                            <th>金額</th>
+                            <th>備考</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -87,6 +161,8 @@
                     </tbody>
                 </Table>
             </div>
+            <footer class="footer">
+            </footer>
         </div>
         <script type="text/javascript">
 
@@ -96,7 +172,7 @@
             expenditures: []
           },
           methods: {
-            filter: async function() {
+            onPush_filter: async function() {
                 var url = "/expenditure_filter"
                 await axios.post(url,{
                     year: document.getElementById("select_year").value,
@@ -112,14 +188,14 @@
                 document.getElementById("txt_ammount").value = obj.ammount
                 document.getElementById("txt_note").value = obj.note
             },
-            blank: function() {
+            onPush_new: function() {
                 document.getElementById("txt_id").value = ""
                 document.getElementById("date_register").value = ""
                 document.getElementById("select_category").selectIndex = 1
                 document.getElementById("txt_ammount").value = ""
                 document.getElementById("txt_note").value = ""
             },
-            register:async function() {
+            onPush_submit:async function() {
                 var url = "expenditure_update"
                 await axios.post(url,{
                     id: document.getElementById("txt_id").value,
@@ -128,12 +204,12 @@
                     ammount: document.getElementById("txt_ammount").value,
                     note: document.getElementById("txt_note").value
                 }).then(x => {
-                    this.filter()
+                    this.onPush_filter()
                 })
             }
           },
           beforeMount() {
-            this.filter()
+            this.onPush_filter()
           }
         })
         </script>
