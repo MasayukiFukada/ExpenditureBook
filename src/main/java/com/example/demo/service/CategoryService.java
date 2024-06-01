@@ -83,7 +83,7 @@ public class CategoryService {
         return true;
     }
 
-    private static Category convertEntityToModel(CategoryEntity entity) {
+    private Category convertEntityToModel(CategoryEntity entity) {
         Category item = new Category(entity.getType(), entity.getName(), new CategoryNote(entity.getNote()));
         item.setId(new ID(entity.getId()));
         item.setNote(new CategoryNote(entity.getNote()));
@@ -94,7 +94,7 @@ public class CategoryService {
         return item;
     }
 
-    private static CategoryEntity convertModelToEntity(Category model) {
+    private CategoryEntity convertModelToEntity(Category model) {
         CategoryEntity item = new CategoryEntity();
         item.setId(model.getId().getId());
         item.setNote(model.getNote().getNote());
@@ -111,7 +111,7 @@ public class CategoryService {
         return item;
     }
 
-    public static JSONCategory convertModelToJSONModel(Category model) {
+    public JSONCategory convertModelToJSONModel(Category model) {
         JSONCategory converted = new JSONCategory();
         converted.setId(model.getId().getId());
         converted.setName(model.getName());

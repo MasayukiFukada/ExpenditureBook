@@ -49,7 +49,7 @@ public class AggregateService {
         return copy;
     }
 
-    public static JSONTotalAggregate convertModelToJSONModel(TotalAggregate model) {
+    public JSONTotalAggregate convertModelToJSONModel(TotalAggregate model) {
         JSONTotalAggregate totalAggregate = new JSONTotalAggregate();
         totalAggregate.setTotalAmmount(model.getTotalAmmount().getValue());
         List<JSONSubAggregate> subItems = new ArrayList<JSONSubAggregate>();
@@ -58,7 +58,7 @@ public class AggregateService {
             subItem.setMonth(sub.getMonth().getValue());
             subItem.setSubTotalAmmount(sub.getSubTotalAmmount().getValue());
             for (AggregateItem item : sub.getItems()) {
-                JSONAggregateItem aggregateItem = AggregateService.convertModelToJSONModel(item);
+                JSONAggregateItem aggregateItem = convertModelToJSONModel(item);
                 subItem.getItems().add(aggregateItem);
             }
             subItems.add(subItem);
@@ -67,7 +67,7 @@ public class AggregateService {
         return totalAggregate;
     }
 
-    public static JSONAggregateItem convertModelToJSONModel(AggregateItem model) {
+    public JSONAggregateItem convertModelToJSONModel(AggregateItem model) {
         JSONAggregateItem converted = new JSONAggregateItem();
         converted.setCategoryId(model.getCategory().getId().getId());
         converted.setCategoryName(model.getCategory().getName());

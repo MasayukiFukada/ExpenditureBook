@@ -240,7 +240,7 @@
                  // 内訳のデータ
                  this.columns = []
                  obj.items.forEach((item) => {
-                    // NOTE: 値がゼロでも上手く捌いてくれる
+                    // INFO: 値がゼロでも上手く捌いてくれる
                     var array = []
                     array.push(item.categoryName)
                     array.push(item.categoryAmmount)
@@ -314,11 +314,11 @@
              }
            },
            beforeMount() {
-               // NOTE: コンポーネントがマウントされる前
+               // INFO: コンポーネントがマウントされる前
                this.onPush_filter()
            },
            mounted() {
-               // NOTE: コンポーネントがマウントされた後
+               // INFO: コンポーネントがマウントされた後
                this.create_chart()
            }
          })

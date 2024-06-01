@@ -77,7 +77,6 @@ public class ExpenditureService {
         return true;
     }
 
-    // TODO: カテゴリ情報が必要なので static に出来ないかも？
     private Expenditure convertEntityToModel(ExpenditureEntity entity) {
         Expenditure item = new Expenditure();
         item.setId(new ID(entity.getId()));
@@ -90,7 +89,7 @@ public class ExpenditureService {
         return item;
     }
 
-    private static ExpenditureEntity convertModelToEntity(Expenditure model) {
+    private ExpenditureEntity convertModelToEntity(Expenditure model) {
         ExpenditureEntity item = new ExpenditureEntity();
         item.setId(model.getId().getId());
         item.setAmmount(model.getAmmount().getValue());
@@ -106,7 +105,7 @@ public class ExpenditureService {
         return item;
     }
 
-    public static JSONExpenditure convertModelToJSONModel(Expenditure model) {
+    public JSONExpenditure convertModelToJSONModel(Expenditure model) {
         JSONExpenditure converted = new JSONExpenditure();
         converted.setId(model.getId().getId());
         converted.setDate(model.getDate().getDate().toString());
