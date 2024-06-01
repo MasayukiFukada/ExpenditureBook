@@ -17,8 +17,8 @@
                 <div class="hero-heard">
                     <div class="navbar">
                         <div class="navbar-menu">
-                            <div class="navvar-start">
-                                <a class="navbar-item is-active" href="/">トップへ戻る</a>
+                            <div class="navbar-start">
+                                <a class="navbar-item" href="/">トップへ戻る</a>
                             </div>
                         </div>
                     </div>
@@ -27,140 +27,143 @@
                     <p class="title">支出情報入力</p>
                 </div>
             </section>
-            <!-- 絞り込み画面 -->
-            <section class="section columns">
-                <div class="column is-one-fifth">
-                    <div id="editor" class="card">
-                        <div class="card-header">
-                            <p class="card-header-title">フィルター</p>
-                        </div>
-                        <div class="card-content">
-                            <div class="columns">
-                                <div class="column is-half">
-                                    <div class="select is-rounded">
-                                        <select id="select_year">
-                                            <th:block th:each="year:${yearSelect}">
-                                            <option th:value="${year}" th:text="${year}"></option>
-                                            </th:block>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="column is-half">
-                                    <div class="select is-rounded">
-                                        <select id="select_month">
-                                            <th:block th:each="month:${monthSelect}">
-                                            <option th:value="${month}" th:text="${month} " th:selected="${month == currentMonth}"></option>
-                                            </th:block>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <a href="#editor" class="card-footer-item" @click="onPush_filter()">適用</a>
-                        </div>
+            <section class="section">
+                <div class="columns">
+                    <div class="column is-two-fifths">
+                        <table id="tbl_result" class="table is-bordered is-striped is-hoverable is-fullwidth">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>日付</th>
+                                    <th>カテゴリ</th>
+                                    <th>金額</th>
+                                    <th>備考</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr @click="select(item)" v-for="(item,key) in expenditures">
+                                    <td> {{item.id}} </td>
+                                    <td> {{item.date}} </td>
+                                    <td> {{item.category_name}} </td>
+                                    <td> {{item.ammount}} </td>
+                                    <td> {{item.note}} </td>
+                                </tr>
+                            </tbody>
+                        </Table>
                     </div>
-                </div>
-                <div class="column">
-                    <!-- 編集画面 -->
-                    <div id="editor" class="card">
-                        <div class="card-header">
-                            <p class="card-header-title">支出情報</p>
-                        </div>
-                        <div class="card-content">
-                            <div class="columns">
-                                <div class="column">
-                                    <div class="field">
-                                        <label class="label is-small">登録日:</label>
-                                        <p class="control has-icons-left">
-                                            <input id="date_register" class="input" type="date">
-                                            <span class="icon is-small is-left">
-                                                <i class="far fa-calendar"></i>
-                                            </span>
-                                        </p>
+                    <div class="column">
+                        <div class="columns">
+                            <div class="column is-one-quarter">
+                                <div id="editor" class="card">
+                                    <div class="card-header">
+                                        <p class="card-header-title">フィルター</p>
                                     </div>
-                                </div>
-                                <div class="column">
-                                    <div class="field">
-                                        <label class="label is-small">ID:</label>
-                                        <p class="control has-icons-left">
-                                            <input id="txt_id" class="input" type="text" placeholder="空なら新規、値があれば更新">
-                                            <span class="icon is-small is-left">
-                                                <i class="far fa-address-card"></i>
-                                            </span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="columns">
-                                <div class="column is-one-fifth">
-                                    <div class="field">
-                                        <label class="label is-small">カテゴリ:</label>
-                                        <div class="control" style="text-align: center;">
-                                            <div class="select">
-                                                <select id="select_category">
-                                                    <th:block th:each="data:${categoryMaster}">
-                                                        <option th:value="${data.id.id}" th:text="${data.name}"></option>
-                                                    </th:block>
-                                                </select>
+                                    <div class="card-content">
+                                        <div class="columns">
+                                            <div class="column is-half">
+                                                <div class="select is-rounded">
+                                                    <select id="select_year">
+                                                        <th:block th:each="year:${yearSelect}">
+                                                        <option th:value="${year}" th:text="${year}"></option>
+                                                        </th:block>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="column is-half">
+                                                <div class="select is-rounded">
+                                                    <select id="select_month">
+                                                        <th:block th:each="month:${monthSelect}">
+                                                        <option th:value="${month}" th:text="${month} " th:selected="${month == currentMonth}"></option>
+                                                        </th:block>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="column">
-                                    <div class="field">
-                                        <label class="label is-small">金額:</label>
-                                        <p class="control has-icons-left">
-                                            <input id="txt_ammount" class="input" type="number" />
-                                            <span class="icon is-small is-left">
-                                                <i class="fas fa-yen-sign"></i>
-                                            </span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="column">
-                                    <div class="field">
-                                        <label class="label is-small">備考:</label>
-                                        <p class="control has-icons-left">
-                                            <input id="txt_note" class="input" type="text" placeholder=""/>
-                                            <span class="icon is-small is-left">
-                                                <i class="far fa-comment"></i>
-                                            </span>
-                                        </p>
+                                    <div class="card-footer">
+                                        <a href="#editor" class="card-footer-item" @click="onPush_filter()">適用</a>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card-footer">
-                            <a href="#editor" class="card-footer-item has-text-success has-background-success-light" @click="onPush_submit()">更新</a>
-                            <a href="#editor" class="card-footer-item has-text-grey-light" @click="onPush_new()">新規作成</a>
+                            <div class="column">
+                                <div id="editor" class="card">
+                                    <div class="card-header">
+                                        <p class="card-header-title">支出情報</p>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="columns">
+                                            <div class="column is-one-third">
+                                                <div class="field">
+                                                    <label class="label is-small">登録日:</label>
+                                                    <p class="control has-icons-left">
+                                                        <input id="date_register" class="input" type="date">
+                                                        <span class="icon is-small is-left">
+                                                            <i class="far fa-calendar"></i>
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="column">
+                                                <div class="field">
+                                                    <label class="label is-small">ID:</label>
+                                                    <p class="control has-icons-left">
+                                                        <input id="txt_id" class="input" type="text" placeholder="空なら新規、値があれば更新">
+                                                        <span class="icon is-small is-left">
+                                                            <i class="far fa-address-card"></i>
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="columns">
+                                            <div class="column is-one-fifth">
+                                                <div class="field">
+                                                    <label class="label is-small">カテゴリ:</label>
+                                                    <div class="control" style="text-align: center;">
+                                                        <div class="select">
+                                                            <select id="select_category">
+                                                                <th:block th:each="data:${categoryMaster}">
+                                                                    <option th:value="${data.id.id}" th:text="${data.name}"></option>
+                                                                </th:block>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="column">
+                                                <div class="field">
+                                                    <label class="label is-small">金額:</label>
+                                                    <p class="control has-icons-left">
+                                                        <input id="txt_ammount" class="input" type="number" />
+                                                        <span class="icon is-small is-left">
+                                                            <i class="fas fa-yen-sign"></i>
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="column">
+                                                <div class="field">
+                                                    <label class="label is-small">備考:</label>
+                                                    <p class="control has-icons-left">
+                                                        <input id="txt_note" class="input" type="text" placeholder=""/>
+                                                        <span class="icon is-small is-left">
+                                                            <i class="far fa-comment"></i>
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a href="#editor" class="card-footer-item has-text-success has-background-success-light" @click="onPush_submit()">更新</a>
+                                        <a href="#editor" class="card-footer-item has-text-grey-light" @click="onPush_new()">新規作成</a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
-            <!-- リスト -->
-            <div class="section is-centered">
-                <table id="tbl_result" class="table is-bordered is-striped is-hoverable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>日付</th>
-                            <th>カテゴリ</th>
-                            <th>金額</th>
-                            <th>備考</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr @click="select(item)" v-for="(item,key) in expenditures">
-                            <td> {{item.id}} </td>
-                            <td> {{item.date}} </td>
-                            <td> {{item.category_name}} </td>
-                            <td> {{item.ammount}} </td>
-                            <td> {{item.note}} </td>
-                        </tr>
-                    </tbody>
-                </Table>
-            </div>
             <footer class="footer">
             </footer>
         </div>

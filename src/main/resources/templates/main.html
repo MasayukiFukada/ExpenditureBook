@@ -1,212 +1,327 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <!-- ◆◆◆ d3.js はバージョンに注意 -->
-    <script src="/chart/d3.js"  charset="utf-8"></script>
-    <script src="/chart/billboard.js"></script>
-    <script src="https://unpkg.com/vue@2.7.16"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <title>出費管理</title>
-    <!-- ◆◆◆ Bulma -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
-    <!-- <link th:href="@{/css/design_debug.css}" rel="stylesheet" /> -->
-    <link th:href="@{/css/main.css}" rel="stylesheet" />
-    <link th:href="@{/chart/insight.css}" rel="stylesheet" />
-</head>
-<body>
-    <div id="app">
-        <div><a href="/edit">項目編集画面へ</a></div>
-        <div><a href="/category_master">カテゴリマスタメンテ画面へ</a></div>
-        <div>
-            <div>
-                <select id="select_year">
-                    <th:block th:each="data:${year}">
-                        <option th:value="${data}" th:text="${data}" th:selected="${data == currentYear}"></option>
-                    </th:block>
-                </select>
-            </div>
-            <div>
-                <div><button type="button" @click="filter()">表示</button></div>
-                <div><input type="file" id="input_file"></div>
-                <div><button type="button" @click="loadCSV()">CSV読み込み</button></div>
-            </div>
-            <div class="diagram">
-                <div id="chart"></div>
-                <div id="subTotalChart"></div>
-            </div>
-            <div class="diagram">
-                <div id="categoryChart"></div>
-            </div>
-            <div>
-                <Table id="tbl_result">
-                    <thead>
-                        <tr>
-                            <td class="tbl_head">月</td>
-                            <td class="tbl_head">小計</td>
-                            <td class="tbl_head">住居</td>
-                            <td class="tbl_head">水道光熱</td>
-                            <td class="tbl_head">通信</td>
-                            <td class="tbl_head">保険</td>
-                            <td class="tbl_head">食費</td>
-                            <td class="tbl_head">日用</td>
-                            <td class="tbl_head">被服</td>
-                            <td class="tbl_head">交際</td>
-                            <td class="tbl_head">交通</td>
-                            <td class="tbl_head">趣味</td>
-                            <td class="tbl_head">教育</td>
-                            <td class="tbl_head">医療</td>
-                            <td class="tbl_head">特別</td>
-                            <td class="tbl_head">雑費</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr @click="select(item)" v-for="(item,key) in aggregates.items">
-                            <td class="td_data_month"> {{item.month}} </td>
-                            <td class="td_data_sum"> {{item.subTotalAmmount}} </td>
-                            <td class="td_data_ammount" v-for="(c_item,c_key) in item.items" >
-                                {{c_item.categoryAmmount}}
-                            </td>
-                        </tr>
-                    </tbody>
-                </Table>
-            </div>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <!-- ◆◆◆ d3.js はバージョンに注意 -->
+        <script src="/chart/d3.js"  charset="utf-8"></script>
+        <script src="/chart/billboard.js"></script>
+        <link th:href="@{/chart/insight.css}" rel="stylesheet" />
+        <script src="https://unpkg.com/vue@2.7.16"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <title>出費管理</title>
+        <!-- ◆◆◆ Font awesome -->
+        <link href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" rel="stylesheet">
+        <!-- ◆◆◆ Bulma -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    </head>
+    <body>
+        <div id="app">
+            <section class="hero is-small is-warning">
+                <div class="hero-heard">
+                    <div class="navbar">
+                        <div class="navbar-menu">
+                            <div class="navbar-start">
+                                <a class="navbar-item is-active" href="/edit">項目編集画面へ</a>
+                                <a class="navbar-item" href="/category_master">カテゴリマスタメンテ画面へ</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-body">
+                    <p class="title">出費管理</p>
+                </div>
+            </section>
+            <section class="section">
+                <div class="columns">
+                    <div class="column is-two-fifths">
+                        <div class="columns">
+                            <div class="column">
+                                <div id="subTotalChart"></div>
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column">
+                                <div id="categoryChart"></div>
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column">
+                                <div id="chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="columns">
+                            <div class="column">
+                                <div id="editor" class="card">
+                                    <div class="card-header">
+                                        <p class="card-header-title">フィルター</p>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="content">
+                                            <div class="column">
+                                                <div class="field">
+                                                    <div class="control" style="text-align: center;">
+                                                        <div class="select">
+                                                            <select id="select_year">
+                                                                <th:block th:each="data:${year}">
+                                                                    <option th:value="${data}" th:text="${data}" th:selected="${data == currentYear}"></option>
+                                                                </th:block>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a href="#tbl_result" class="card-footer-item has-text-info has-background-info-light" @click="onPush_filter()">表示</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div id="editor" class="card">
+                                    <div class="card-header">
+                                        <p class="card-header-title">年間合計</p>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="content">
+                                            <div class="is-size-2">合計: {{totalAmmount}} 円<BR>{{selectedMonth}}月 選択</div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div id="editor" class="card">
+                                    <div class="card-header">
+                                        <p class="card-header-title">CSV 読み込み</p>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="content">
+                                            <div class="file has-name is-centered">
+                                              <label class="file-label">
+                                                <input id="input_file" class="file-input" type="file" name="resume" />
+                                                <span class="file-cta">
+                                                  <span class="file-icon">
+                                                    <i class="fas fa-upload"></i>
+                                                  </span>
+                                                  <span class="file-label">CSV選択</span>
+                                                </span>
+                                                <span class="file-name">ファイル名(※未実装)</span>
+                                              </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a href="#" class="card-footer-item has-text-danger has-background-danger-light" @click="onPush_loadCSV()">CSV読み込み</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column">
+                                <div id="editor" class="card">
+                                    <div class="card-header">
+                                        <p class="card-header-title">xxxx</p>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="content">
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a href="#" class="card-footer-item has-text-success has-background-success-light" @click="">zzzz</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column">
+                                <div class="columns">
+                                     <div class="column">
+                                         <Table id="tbl_result" class="table is-bordered is-striped is-hoverable is-fullwidth">
+                                             <thead>
+                                                 <tr>
+                                                     <th>月</th>
+                                                     <th class="is-primary">小計</th>
+                                                     <th>住居</th>
+                                                     <th>水道光熱</th>
+                                                     <th>通信</th>
+                                                     <th>保険</th>
+                                                     <th>食費</th>
+                                                     <th>日用</th>
+                                                     <th>被服</th>
+                                                     <th>交際</th>
+                                                     <th>交通</th>
+                                                     <th>趣味</th>
+                                                     <th>教育</th>
+                                                     <th>医療</th>
+                                                     <th>特別</th>
+                                                     <th>雑費</th>
+                                                 </tr>
+                                             </thead>
+                                             <tbody>
+                                                 <tr @click="select(item)" v-for="(item,key) in aggregates.items">
+                                                     <td class="td_data_month"> {{item.month}} </td>
+                                                     <td class="td_data_sum"> {{item.subTotalAmmount}} </td>
+                                                     <td class="td_data_ammount" v-for="(c_item,c_key) in item.items" >
+                                                         {{c_item.categoryAmmount}}
+                                                     </td>
+                                                 </tr>
+                                             </tbody>
+                                         </Table>
+                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <footer class="footer">
+            </footer>
         </div>
-    </div>
-    <script type="text/javascript">
+        <script type="text/javascript">
 
-     var app = new Vue({
-       el: '#app',
-       data: {
-         aggregates: [],
-         series:[],
-         columns: [],
-         category: [],
-         chart: null,
-         subTotalChart: null,
-         categoryChart: null
-       },
-       methods: {
-         filter: async function() {
-             var url = "/aggregate_filter"
-             await axios.post(url,{
-                 year: document.getElementById("select_year").value
-             }).then(x => {
-                 this.aggregates = x.data
-             })
-         },
-         select: function(obj) {
-             // 各月のデータ
-             this.series = []
-             var array = []
-             array.push("各月")
-             array.push(0) // 0月
-             this.aggregates.items.forEach((item) =>{
-                 array.push(item.subTotalAmmount)
-             })
-             this.series.push(array)
-
-             // 分類ごとのデータ
-             this.category = []
-             let isFirst = true
-             this.aggregates.items.forEach((item) =>{
-                if(isFirst) {
-                    isFirst = false
-                    item.items.forEach((cat) => {
-                        this.category.push([cat.categoryName]);
-                    })
-                }
-                let index = 0
-                item.items.forEach((cat) =>{
-                    this.category[index].push(cat.categoryAmmount)
-                    index = index + 1
-                })
-             })
-
-             // 内訳のデータ
-             this.columns = []
-             obj.items.forEach((item) => {
-                // NOTE: 値がゼロでも上手く捌いてくれる
-                var array = []
-                array.push(item.categoryName)
-                array.push(item.categoryAmmount)
-                this.columns.push(array)
-             })
-             this.subTotalChart.load({columns: this.series})
-             this.categoryChart.load({columns: this.category})
-             this.chart.load({columns: this.columns})
-         },
-         create_chart: function() {
-            this.subTotalChart = bb.generate({
-                bindto: '#subTotalChart',
-                data: {
-                    type : 'line'
-                ,   columns: this.columns},
-            }),
-            this.categoryChart = bb.generate({
-                bindto: '#categoryChart',
-                data: {
-                    type : 'line'
-                ,   columns: this.category},
-            }),
-            this.chart = bb.generate({
-                bindto: '#chart',
-                data: {
-                    type : 'donut'
-                ,   columns: this.columns},
-                donut: {
-                    title: '月の消費割合'
-                }
-            })
-         },
-         send_csv: async function(values) {
-            var url = "/register_csv"
-            await axios.post(url,{
-                year: values[0],
-                month: values[1],
-                day: values[2],
-                ammount: values[3],
-                category_id: values[4],
-                note: values[5]
-            }).then(x => {
-                console.log(x.data)
-            })
-         },
-         loadCSV: function() {
-            // CSV 読み込み。
-            // MEMO: 権限とか要るかと思ったけど不要そう
-            let reader = new FileReader()
-            reader.onload = function (e) {
-                // 読み込み完了時の処理
-                // 改行コードは環境に依るかも
-                let rows = e.target.result.split(/\r\n/)
-                var firstLine = true
-                rows.forEach((item) => {
-                    if(firstLine) {
-                        // 見出し行だけ飛ばす
-                        firstLine = false
-                    }else{
-                        let values = item.split(/,/)
-                        if(values.length > 1) {
-                            app.send_csv(values)
-                        }
-                    }
+         var app = new Vue({
+           el: '#app',
+           data: {
+             aggregates: []
+           , series:[]
+           , columns: []
+           , category: []
+           , chart: null
+           , selectedMonth: 0
+           , totalAmmount: 0
+           , subTotalChart: null
+           , categoryChart: null
+           },
+           methods: {
+             onPush_filter: async function() {
+                 var url = "/aggregate_filter"
+                 await axios.post(url,{
+                     year: document.getElementById("select_year").value
+                 }).then(x => {
+                     this.aggregates = x.data
                  })
-            }
-            let tag =document.getElementById("input_file")
-            reader.readAsText(tag.files[0])
-         }
-       },
-       beforeMount() {
-           // NOTE: コンポーネントがマウントされる前
-           this.filter()
-       },
-       mounted() {
-           // NOTE: コンポーネントがマウントされた後
-           this.create_chart()
-       }
-     })
-     </script>
-</body>
+             },
+             select: function(obj) {
+                 // 各月のデータ
+                 this.series = []
+                 var array = []
+                 array.push("各月")
+                 array.push(0) // ダミーで0月を追加しておく
+                 this.totalAmmount = 0
+                 this.aggregates.items.forEach((item) =>{
+                     array.push(item.subTotalAmmount)
+                     this.totalAmmount = this.totalAmmount + item.subTotalAmmount
+                 })
+                 this.series.push(array)
+
+                 // 分類ごとのデータ
+                 this.category = []
+                 let isFirst = true
+                 this.aggregates.items.forEach((item) =>{
+                    if(isFirst) {
+                        isFirst = false
+                        item.items.forEach((cat) => {
+                            this.category.push([cat.categoryName, 0])
+                        })
+                    }
+                    let index = 0
+                    item.items.forEach((cat) =>{
+                        this.category[index].push(cat.categoryAmmount)
+                        index = index + 1
+                    })
+                 })
+
+                 this.selectedMonth = obj.month
+                 // 内訳のデータ
+                 this.columns = []
+                 obj.items.forEach((item) => {
+                    // NOTE: 値がゼロでも上手く捌いてくれる
+                    var array = []
+                    array.push(item.categoryName)
+                    array.push(item.categoryAmmount)
+                    this.columns.push(array)
+                 })
+                 this.subTotalChart.load({columns: this.series})
+                 this.categoryChart.load({columns: this.category})
+                 this.chart.load({columns: this.columns})
+                 console.log(this.chart)
+                 this.chart.title = this.selectedMonth + '月の消費割合'
+             },
+             create_chart: function() {
+                this.subTotalChart = bb.generate({
+                    bindto: '#subTotalChart',
+                    data: {
+                        type : 'line'
+                    ,   columns: this.columns},
+                }),
+                this.categoryChart = bb.generate({
+                    bindto: '#categoryChart',
+                    data: {
+                        type : 'line'
+                    ,   columns: this.category},
+                }),
+                this.chart = bb.generate({
+                    bindto: '#chart',
+                    data: {
+                        type : 'donut'
+                    ,   columns: this.columns},
+                    donut: {
+                        title: '月の消費割合'
+                    }
+                })
+             },
+             send_csv: async function(values) {
+                var url = "/register_csv"
+                await axios.post(url,{
+                    year: values[0],
+                    month: values[1],
+                    day: values[2],
+                    ammount: values[3],
+                    category_id: values[4],
+                    note: values[5]
+                }).then(x => {
+                    console.log(x.data)
+                })
+             },
+             onPush_loadCSV: function() {
+                // CSV 読み込み。
+                // MEMO: 権限とか要るかと思ったけど不要そう
+                let reader = new FileReader()
+                reader.onload = function (e) {
+                    // 読み込み完了時の処理
+                    // 改行コードは環境に依るかも
+                    let rows = e.target.result.split(/\r\n/)
+                    var firstLine = true
+                    rows.forEach((item) => {
+                        if(firstLine) {
+                            // 見出し行だけ飛ばす
+                            firstLine = false
+                        }else{
+                            let values = item.split(/,/)
+                            if(values.length > 1) {
+                                app.send_csv(values)
+                            }
+                        }
+                     })
+                }
+                let tag =document.getElementById("input_file")
+                reader.readAsText(tag.files[0])
+             }
+           },
+           beforeMount() {
+               // NOTE: コンポーネントがマウントされる前
+               this.onPush_filter()
+           },
+           mounted() {
+               // NOTE: コンポーネントがマウントされた後
+               this.create_chart()
+           }
+         })
+         </script>
+    </body>
 </html>

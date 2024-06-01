@@ -1,7 +1,0 @@
-div {
-    border: 1px solid #000;
-    border-color: green;
-
-background-color: gray;
-background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.5) 35px, rgba(255,255,255,.5) 70px);
-}
