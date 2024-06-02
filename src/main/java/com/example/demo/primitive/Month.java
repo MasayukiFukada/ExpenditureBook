@@ -12,16 +12,16 @@ public class Month implements Serializable {
     private int value;
 
     public Month(int value) {
-        this.setValue(value);
+        this.value = returnValidMonth(value);
     }
 
-    public void setValue(int value) {
+    private int returnValidMonth(int value) {
+        int result = value;
         if (value > 12) {
-            value = 12;
+            result = 12;
         } else if (value < 1) {
-            value = 1;
-        } else {
-            this.value = value;
+            result = 1;
         }
+        return result;
     }
 }
