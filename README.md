@@ -6,8 +6,8 @@
 ## DB 構造の操作について
 
 * コマンドラインからクエリを叩くよりも dbeaver からエディタで入力して確認するのが楽
-  * 確認できたら保存しておく
-  * ==> コードに @Table とか書いて動かしたらテーブル生える
+    * 確認できたら保存しておく
+    * ==> コードに @Table とか書いて動かしたらテーブル生える
 
 ## ドキュメント
 
@@ -17,6 +17,14 @@
 ## 技術スタック
 
 * Java + Spring Boot + Spring Data JPA
-* Vue.js (javascript)
+* Bulma CSS framework
+* Vue.js (?) + billboard.js
 * MySQL
 
+## ビルドについて
+
+* Gradle との兼ね合いに注意
+    * JDK とのバージョンに問題なければ `gradlew build` で jar ができる
+        * Eclipse からではなくプロンプトから直接叩いた
+    * java -jar ExpenditureBook-1.0.0.jar --server.port=3000
+      * ポートの指定も可能
