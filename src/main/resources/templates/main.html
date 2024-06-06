@@ -125,14 +125,24 @@
                             <div class="column">
                                 <div id="editor" class="card">
                                     <div class="card-header">
-                                        <p class="card-header-title">xxxx</p>
+                                        <p class="card-header-title">月のコメント</p>
                                     </div>
                                     <div class="card-content">
                                         <div class="content">
+                                                <div class="field">
+                                                    <label for="txt_comment_note" class="label is-small">コメント:</label>
+                                                    <p class="control has-icons-left">
+                                                        <input id="txt_comment_note" class="input" type="text" placeholder=""/>
+                                                        <span class="icon is-small is-left">
+                                                            <i class="far fa-comment"></i>
+                                                        </span>
+                                                        <input id="txt_comment_id" class="input" type="hidden" placeholder=""/>
+                                                    </p>
+                                                </div>
                                         </div>
                                     </div>
                                     <div class="card-footer">
-                                        <a href="#" class="card-footer-item has-text-success has-background-success-light" @click="">zzzz</a>
+                                        <a href="#" class="card-footer-item has-text-success has-background-success-light" @click="update_comment()">更新</a>
                                     </div>
                                 </div>
                             </div>
@@ -191,6 +201,7 @@
            , series:[]
            , columns: []
            , category: []
+           , comments: []
            , chart: null
            , selectedMonth: 0
            , totalAmmount: 0
@@ -204,6 +215,14 @@
                      year: document.getElementById("select_year").value
                  }).then(x => {
                      this.aggregates = x.data
+                 })
+             },
+             refresh_comments: async function(){
+                 var url = "/monthly_comments"
+                 await axios.post(url,{
+                     year: document.getElementById("select_year").value
+                 }).then(x => {
+                     this.comments = x.data
                  })
              },
              select: function(obj) {
@@ -250,7 +269,33 @@
                  this.categoryChart.load({columns: this.category})
                  this.chart.load({columns: this.columns})
                  console.log(this.chart)
-                 this.chart.title = this.selectedMonth + '月の消費割合'
+                 this.chart.title = this.selectedMonth + '月の消費割合' 
+                 this.load_comment(this.selectedMonth)
+             },
+             load_comment: function(month) {
+                document.getElementById("txt_comment_id").value = ""
+                document.getElementById("txt_comment_note").value = ""
+                for(const item of this.comments) {
+                    console.log(item)
+                    if( item.month == month ) {
+                        document.getElementById("txt_comment_id").value = item.id
+                        document.getElementById("txt_comment_note").value = item.comment
+                    }
+                }
+             },
+             update_comment: async function() {
+                 if(this.selectedMonth == 0) {
+                    return
+                 }
+                 var url = "/update_comment"
+                 await axios.post(url,{
+                     id: document.getElementById("txt_comment_id").value
+                 , year: document.getElementById("select_year").value
+                 ,month: this.selectedMonth
+                 , note: document.getElementById("txt_comment_note").value
+                 }).then(x => {
+                     this.comments = x.data
+                 })
              },
              create_chart: function() {
                 this.subTotalChart = bb.generate({
@@ -320,6 +365,7 @@
            mounted() {
                // INFO: コンポーネントがマウントされた後
                this.create_chart()
+               this.refresh_comments()
            }
          })
          </script>
