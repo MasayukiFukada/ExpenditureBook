@@ -94,7 +94,7 @@
                                         <div class="columns">
                                             <div class="column is-one-third">
                                                 <div class="field">
-                                                    <label class="label is-small">登録日:</label>
+                                                    <label for="date_register" class="label is-small">登録日:</label>
                                                     <p class="control has-icons-left">
                                                         <input id="date_register" class="input" type="date">
                                                         <span class="icon is-small is-left">
@@ -105,7 +105,7 @@
                                             </div>
                                             <div class="column">
                                                 <div class="field">
-                                                    <label class="label is-small">ID:</label>
+                                                    <label for="txt_id" class="label is-small">ID:</label>
                                                     <p class="control has-icons-left">
                                                         <input id="txt_id" class="input" type="text" placeholder="空なら新規、値があれば更新">
                                                         <span class="icon is-small is-left">
@@ -118,7 +118,7 @@
                                         <div class="columns">
                                             <div class="column is-one-fifth">
                                                 <div class="field">
-                                                    <label class="label is-small">カテゴリ:</label>
+                                                    <label for="select_category" class="label is-small">カテゴリ:</label>
                                                     <div class="control" style="text-align: center;">
                                                         <div class="select">
                                                             <select id="select_category">
@@ -132,7 +132,7 @@
                                             </div>
                                             <div class="column">
                                                 <div class="field">
-                                                    <label class="label is-small">金額:</label>
+                                                    <label for="txt_ammount" class="label is-small">金額:</label>
                                                     <p class="control has-icons-left">
                                                         <input id="txt_ammount" class="input" type="number" />
                                                         <span class="icon is-small is-left">
@@ -143,7 +143,7 @@
                                             </div>
                                             <div class="column">
                                                 <div class="field">
-                                                    <label class="label is-small">備考:</label>
+                                                    <label for="txt_note" class="label is-small">備考:</label>
                                                     <p class="control has-icons-left">
                                                         <input id="txt_note" class="input" type="text" placeholder=""/>
                                                         <span class="icon is-small is-left">
@@ -208,6 +208,8 @@
                     note: document.getElementById("txt_note").value
                 }).then(x => {
                     this.onPush_filter()
+                    document.getElementById("txt_ammount").value = ""
+                    document.getElementById("txt_note").value = ""
                 })
             }
           },
