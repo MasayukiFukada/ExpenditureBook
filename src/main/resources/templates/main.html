@@ -160,12 +160,12 @@
                                                      <th>水道光熱</th>
                                                      <th>通信</th>
                                                      <th>保険</th>
-                                                     <th>食費</th>
+                                                     <th class="is-warning">食費</th>
                                                      <th>日用</th>
                                                      <th>被服</th>
                                                      <th>交際</th>
                                                      <th>交通</th>
-                                                     <th>趣味</th>
+                                                     <th class="is-info">趣味</th>
                                                      <th>教育</th>
                                                      <th>医療</th>
                                                      <th>特別</th>
@@ -175,7 +175,7 @@
                                              <tbody>
                                                  <tr @click="select(item)" v-for="(item,key) in aggregates.items">
                                                      <td class="td_data_month"> {{item.month}} </td>
-                                                     <td class="td_data_sum"> {{item.subTotalAmmount}} </td>
+                                                     <td class="td_data_sum has-background-primary-light"> {{item.subTotalAmmount}} </td>
                                                      <td class="td_data_ammount" v-for="(c_item,c_key) in item.items" >
                                                          {{c_item.categoryAmmount}}
                                                      </td>

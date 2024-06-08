@@ -41,12 +41,17 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr @click="select(item)" v-for="(item,key) in expenditures">
-                                    <td> {{item.id}} </td>
-                                    <td> {{item.date}} </td>
-                                    <td> {{item.category_name}} </td>
-                                    <td> {{item.ammount}} </td>
-                                    <td> {{item.note}} </td>
+                                <tr @click="select(item)" v-for="(item,key) in expenditures"
+                                    :class="[
+                                    item.category_name == '食費' && 'has-background-warning-light',
+                                    item.category_name == '趣味' && 'has-background-info-light'
+                                    ]"
+                                    >
+                                    <td>{{item.id}}</td>
+                                    <td>{{item.date}}</td>
+                                    <td>{{item.category_name}}</td>
+                                    <td>{{item.ammount}}</td>
+                                    <td>{{item.note}}</td>
                                 </tr>
                             </tbody>
                         </Table>
@@ -155,8 +160,8 @@
                                         </div>
                                     </div>
                                     <div class="card-footer">
-                                        <a href="#editor" class="card-footer-item has-text-success has-background-success-light" @click="onPush_submit()">更新</a>
-                                        <a href="#editor" class="card-footer-item has-text-grey-light" @click="onPush_new()">新規作成</a>
+                                        <a href="#" class="card-footer-item has-text-success has-background-success-light" @click="onPush_submit()">更新</a>
+                                        <a href="#" class="card-footer-item has-text-grey-light" @click="onPush_new()">新規作成</a>
                                     </div>
                                 </div>
                             </div>
