@@ -35,5 +35,6 @@ public class SubAggregate implements Serializable {
                 data.setCategoryAmmount(sumAmmount);
             }
         }
+        subTotalAmmount = new Money(subTotalAmmount.getValue() + item.getAmmount().getValue());
     }
 }
