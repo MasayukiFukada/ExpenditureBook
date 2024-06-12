@@ -51,6 +51,7 @@ public class TotalAggregate implements Serializable {
         for (SubAggregate sub : this.items) {
             if (sub.getMonth().getValue() == item.getDate().getDate().getMonthValue()) {
                 sub.append(item);
+                totalAmmount = new Money(totalAmmount.getValue() + item.getAmmount().getValue());
             }
         }
     }
