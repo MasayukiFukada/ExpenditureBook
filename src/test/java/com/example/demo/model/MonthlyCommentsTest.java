@@ -13,7 +13,6 @@ class MonthlyCommentsTest {
     @Test
     @DisplayName("通常のテスト")
     void test() {
-        MonthlyComment sample = new MonthlyComment();
         List<MonthlyComment> comments = new ArrayList<MonthlyComment>();
         MonthlyComments model = new MonthlyComments(comments);
 

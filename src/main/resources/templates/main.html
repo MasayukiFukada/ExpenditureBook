@@ -215,6 +215,7 @@
                      year: document.getElementById("select_year").value
                  }).then(x => {
                      this.aggregates = x.data
+                     this.totalAmmount = x.data.totalAmmount
                  })
              },
              refresh_comments: async function(){
@@ -231,10 +232,8 @@
                  var array = []
                  array.push("各月")
                  array.push(0) // ダミーで0月を追加しておく
-                 this.totalAmmount = 0
                  this.aggregates.items.forEach((item) =>{
                      array.push(item.subTotalAmmount)
-                     this.totalAmmount = this.totalAmmount + item.subTotalAmmount
                  })
                  this.series.push(array)
 

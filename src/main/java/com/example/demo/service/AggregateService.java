@@ -44,11 +44,6 @@ public class AggregateService {
         return copy;
     }
 
-    public TotalAggregate getMonthly(int year, int month) {
-        TotalAggregate copy = templateTotalAggregate.copy();
-        return copy;
-    }
-
     public JSONTotalAggregate convertModelToJSONModel(TotalAggregate model) {
         JSONTotalAggregate totalAggregate = new JSONTotalAggregate();
         totalAggregate.setTotalAmmount(model.getTotalAmmount().getValue());

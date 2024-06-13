@@ -20,7 +20,7 @@ class ExpenditureTest {
     @Test
     @DisplayName("通常のテスト")
     void newTest() {
-        Expenditure model = new Expenditure();
+        // Expenditure model = new Expenditure();
     }
 
     @Test

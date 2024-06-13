@@ -27,6 +27,7 @@ import com.example.demo.model.JSONMonthlyComment;
 import com.example.demo.model.JSONTotalAggregate;
 import com.example.demo.model.MonthlyComment;
 import com.example.demo.model.MonthlyComments;
+import com.example.demo.model.TotalAggregate;
 import com.example.demo.primitive.CommentNote;
 import com.example.demo.primitive.ExpenditureDate;
 import com.example.demo.primitive.ID;
@@ -73,7 +74,9 @@ public class MainViewController {
     @ResponseBody
     public ResponseEntity<JSONTotalAggregate> search(@RequestBody Map<String, String> body) {
         int year = Integer.valueOf(body.get("year"));
-        JSONTotalAggregate found = aggregateService.convertModelToJSONModel(aggregateService.getAnnualy(year));
+        TotalAggregate totalAggregate = aggregateService.getAnnualy(year);
+        JSONTotalAggregate found = aggregateService.convertModelToJSONModel(totalAggregate);
+        found.setTotalAmmount(totalAggregate.getTotalAmmount().getValue());
         return new ResponseEntity<>(found, HttpStatus.OK);
     }
 
