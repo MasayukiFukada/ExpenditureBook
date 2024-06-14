@@ -197,16 +197,16 @@
          var app = new Vue({
            el: '#app',
            data: {
-             aggregates: []
-           , series:[]
-           , columns: []
-           , category: []
-           , comments: []
-           , chart: null
-           , selectedMonth: 0
-           , totalAmmount: 0
-           , subTotalChart: null
-           , categoryChart: null
+               aggregates: []
+           ,   series:[]
+           ,   columns: []
+           ,   category: []
+           ,   comments: []
+           ,   chart: null
+           ,   selectedMonth: 0
+           ,   totalAmmount: 0
+           ,   subTotalChart: null
+           ,   categoryChart: null
            },
            methods: {
              onPush_filter: async function() {
@@ -230,8 +230,7 @@
                  // 各月のデータ
                  this.series = []
                  var array = []
-                 array.push("各月")
-                 array.push(0) // ダミーで0月を追加しておく
+                 array.push("各月総支出")
                  this.aggregates.items.forEach((item) =>{
                      array.push(item.subTotalAmmount)
                  })
@@ -244,7 +243,7 @@
                     if(isFirst) {
                         isFirst = false
                         item.items.forEach((cat) => {
-                            this.category.push([cat.categoryName, 0])
+                            this.category.push([cat.categoryName])
                         })
                     }
                     let index = 0
@@ -289,32 +288,50 @@
                  var url = "/update_comment"
                  await axios.post(url,{
                      id: document.getElementById("txt_comment_id").value
-                 , year: document.getElementById("select_year").value
-                 ,month: this.selectedMonth
-                 , note: document.getElementById("txt_comment_note").value
+                 ,   year: document.getElementById("select_year").value
+                 ,   month: this.selectedMonth
+                 ,   note: document.getElementById("txt_comment_note").value
                  }).then(x => {
                      this.comments = x.data
                  })
              },
              create_chart: function() {
+                // HACK: X 軸を 1 から始めたいが、後からデータだけを差し込もうとすると
+                //       ラベルがエラーになるようなので、ダミーデータを渡している。
+                //       グラフの設定が終わった時点で非表示(hide)にしている
                 this.subTotalChart = bb.generate({
-                    bindto: '#subTotalChart',
-                    data: {
-                        type : 'line'
-                    ,   columns: this.columns},
-                }),
+                    bindto: '#subTotalChart'
+                ,   data: {
+                        type : 'bar'
+                    ,   x: "x"
+                    ,   columns: [ 
+                            ["x", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+                        ,   [".", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] // !必要! dummy データ
+                        ,   this.columns 
+                        ]
+                    }
+                })
+                this.subTotalChart.hide(".")
                 this.categoryChart = bb.generate({
-                    bindto: '#categoryChart',
-                    data: {
+                    bindto: '#categoryChart'
+                ,   data: {
                         type : 'line'
-                    ,   columns: this.category},
-                }),
+                    ,   x: "x"
+                    ,   columns: [
+                            ["x", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+                        ,   [".", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] // !必要! dummy データ
+                        ,   this.category
+                        ]
+                    }
+                })
+                this.categoryChart.hide(".")
                 this.chart = bb.generate({
-                    bindto: '#chart',
-                    data: {
+                    bindto: '#chart'
+                ,   data: {
                         type : 'donut'
-                    ,   columns: this.columns},
-                    donut: {
+                    ,   columns: this.columns
+                    }
+                ,   donut: {
                         title: '月の消費割合'
                     }
                 })
@@ -322,12 +339,12 @@
              send_csv: async function(values) {
                 var url = "/register_csv"
                 await axios.post(url,{
-                    year: values[0],
-                    month: values[1],
-                    day: values[2],
-                    ammount: values[3],
-                    category_id: values[4],
-                    note: values[5]
+                    year: values[0]
+                ,   month: values[1]
+                ,   day: values[2]
+                ,   ammount: values[3]
+                ,   category_id: values[4]
+                ,   note: values[5]
                 }).then(x => {
                     console.log(x.data)
                 })
