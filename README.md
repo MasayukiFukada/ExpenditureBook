@@ -29,6 +29,11 @@
     * java -jar ExpenditureBook-1.0.0.jar --server.port=3000
       * ポートの指定も可能
 
+## Conventional Commits
+
+* changeloguru
+  * CHANGELOG.md を生成可能 ※ 途中のコミットから
+
 ## CCN の計測
 
 * Powershell
