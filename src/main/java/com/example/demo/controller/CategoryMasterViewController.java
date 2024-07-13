@@ -45,13 +45,7 @@ public class CategoryMasterViewController {
     public String categoryAppend(@RequestBody Map<String, String> body) {
         Category model = new Category();
         final String getID = body.get("id");
-        if (getID.equals("")) {
-            ID newID = new ID();
-            newID.setNewVer4ID();
-            model.setId(newID);
-        } else {
-            model.setId(new ID(getID));
-        }
+        model.setId(getIdFrom(getID));
         model.setType(Integer.valueOf(body.get("type")));
         model.setName(body.get("name"));
         CategoryNote note = new CategoryNote(body.get("note"));
@@ -69,5 +63,14 @@ public class CategoryMasterViewController {
             categoryService.insert(model);
         }
         return "category_master.html";
+    }
+
+    private ID getIdFrom(String value) {
+        if (value.equals("")) {
+            ID newID = new ID();
+            newID.setNewVer4ID();
+            return newID;
+        }
+        return new ID(value);
     }
 }
