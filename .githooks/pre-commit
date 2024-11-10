@@ -1,4 +1,3 @@
 #!/bin/sh
 
-cd chabankantoku/
-lizard -l java -C 7 -T nloc=27 -s cyclomatic_complexity -a 4 -x "./src/test/*" --csv > ../lizard.csv
+lizard -l java -C 7 -T nloc=27 -s cyclomatic_complexity -a 4 --exclude "./src/test/*" --csv > lizard.csv
