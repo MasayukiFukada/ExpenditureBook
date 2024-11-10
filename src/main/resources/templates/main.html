@@ -227,6 +227,9 @@
                  })
              },
              select: function(obj) {
+                 // 選択月
+                 this.selectedMonth = obj.month
+
                  // 各月のデータ
                  this.series = []
                  var array = []
@@ -239,25 +242,34 @@
                  // 分類ごとのデータ
                  this.category = []
                  let isFirst = true
+                 // 年間グラフ用に月をループ
                  this.aggregates.items.forEach((item) =>{
                     if(isFirst) {
                         isFirst = false
+                        // 最初だけカテゴリ名を追加
                         item.items.forEach((cat) => {
                             this.category.push([cat.categoryName])
                         })
                     }
                     let index = 0
-                    item.items.forEach((cat) =>{
-                        this.category[index].push(cat.categoryAmmount)
-                        index = index + 1
-                    })
+                    // カテゴリの種類毎にループ
+                    // NOTE: こんな感じで増えていく
+                    // 住居, 水道光熱
+                    // 1月 → 住居, 49500, 水道光熱, 5000
+                    // 2月 → 住居, 49500, 49500, 水道光熱, 5000, 4000
+                    // NOTE: 年間のグラフ( 棒、折れ線 )なので当然 13 月は含めない
+                    if(item.month < 13) {
+                        item.items.forEach((cat) =>{
+                            this.category[index].push(cat.categoryAmmount)
+                            index = index + 1
+                        })
+                    }
                  })
 
-                 this.selectedMonth = obj.month
                  // 内訳のデータ
                  this.columns = []
                  obj.items.forEach((item) => {
-                    // INFO: 値がゼロでも上手く捌いてくれる
+                    // INFO: 値がゼロで追加しても円グラフ的に上手く捌いてくれる
                     var array = []
                     array.push(item.categoryName)
                     array.push(item.categoryAmmount)
@@ -266,15 +278,13 @@
                  this.subTotalChart.load({columns: this.series})
                  this.categoryChart.load({columns: this.category})
                  this.chart.load({columns: this.columns})
-                 console.log(this.chart)
-                 this.chart.title = this.selectedMonth + '月の消費割合' 
+                 this.chart.title = this.selectedMonth + '月の消費割合'
                  this.load_comment(this.selectedMonth)
              },
              load_comment: function(month) {
                 document.getElementById("txt_comment_id").value = ""
                 document.getElementById("txt_comment_note").value = ""
                 for(const item of this.comments) {
-                    console.log(item)
                     if( item.month == month ) {
                         document.getElementById("txt_comment_id").value = item.id
                         document.getElementById("txt_comment_note").value = item.comment
@@ -304,10 +314,10 @@
                 ,   data: {
                         type : 'bar'
                     ,   x: "x"
-                    ,   columns: [ 
+                    ,   columns: [
                             ["x", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
                         ,   [".", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] // !必要! dummy データ
-                        ,   this.columns 
+                        ,   this.columns
                         ]
                     }
                 })

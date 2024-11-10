@@ -1,13 +1,8 @@
 package com.example.demo.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.example.demo.model.AggregateItem;
 import com.example.demo.model.Categories;
+import com.example.demo.model.Category;
 import com.example.demo.model.Expenditure;
 import com.example.demo.model.Expenditures;
 import com.example.demo.model.JSONAggregateItem;
@@ -15,6 +10,10 @@ import com.example.demo.model.JSONSubAggregate;
 import com.example.demo.model.JSONTotalAggregate;
 import com.example.demo.model.SubAggregate;
 import com.example.demo.model.TotalAggregate;
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class AggregateService {
@@ -44,6 +43,13 @@ public class AggregateService {
         return copy;
     }
 
+    /**
+     * JSON に変換
+     * * 便宜上「13月」という集計用のデータを追加する
+     *
+     * @param model 変換元データ
+     * @return 変換されたデータ
+     */
     public JSONTotalAggregate convertModelToJSONModel(TotalAggregate model) {
         JSONTotalAggregate totalAggregate = new JSONTotalAggregate();
         totalAggregate.setTotalAmmount(model.getTotalAmmount().getValue());
@@ -58,6 +64,32 @@ public class AggregateService {
             }
             subItems.add(subItem);
         }
+        // 集計用の特殊データ
+        JSONSubAggregate subSumItem = new JSONSubAggregate();
+        subSumItem.setMonth(13);
+        subSumItem.setSubTotalAmmount(model.getTotalAmmount().getValue());
+        for (Category category : this.categories.getItems()) {
+            JSONAggregateItem aggregateItem = new JSONAggregateItem();
+            aggregateItem.setCategoryId(category.getId().toString());
+            aggregateItem.setCategoryName(category.getName());
+            for (JSONSubAggregate calcSubItem : subItems) {
+                boolean isFound = false;
+                for (JSONAggregateItem calcAggregateItem : calcSubItem.getItems()) {
+                    if (calcAggregateItem.getCategoryId().equals(category.getId().getId())) {
+                        isFound = true;
+                        int currentValue = aggregateItem.getCategoryAmmount();
+                        currentValue = currentValue + calcAggregateItem.getCategoryAmmount();
+                        aggregateItem.setCategoryAmmount(currentValue);
+                    }
+                }
+                if (!isFound) {
+                    aggregateItem.setCategoryAmmount(0);
+                }
+            }
+            subSumItem.getItems().add(aggregateItem);
+        }
+        subItems.add(subSumItem);
+
         totalAggregate.setItems(subItems);
         return totalAggregate;
     }

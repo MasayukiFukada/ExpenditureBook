@@ -1,18 +1,15 @@
 package com.example.demo.model;
 
+import com.example.demo.primitive.Money;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
-
-import com.example.demo.primitive.Money;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 
 @Getter
 @Setter
@@ -44,7 +41,7 @@ public class TotalAggregate implements Serializable {
 
     /**
      * 支出情報を追加
-     * 
+     *
      * @param item 追加したい項目
      */
     public void append(Expenditure item) {
@@ -58,7 +55,7 @@ public class TotalAggregate implements Serializable {
 
     /**
      * ディープコピー
-     * 
+     *
      * @return
      */
     public TotalAggregate copy() {
