@@ -26,8 +26,12 @@
 * Gradle との兼ね合いに注意
     * JDK とのバージョンに問題なければ `gradlew build` で jar ができる
         * Eclipse からではなくプロンプトから直接叩いた
+        * `build.bat` があるので実行、もしくは参考にする
     * java -jar ExpenditureBook-1.0.0.jar --server.port=3000
-      * ポートの指定も可能
+        * ポートの指定も可能
+
+* git config --local core.hooksPath .githooks
+    * [参考](https://zenn.dev/sun_asterisk/articles/97d2b4be675c06
 
 ## Conventional Commits
 
