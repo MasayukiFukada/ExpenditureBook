@@ -1,12 +1,5 @@
 package com.example.demo.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.example.demo.entity.MonthlyCommentEntity;
 import com.example.demo.model.MonthlyComment;
 import com.example.demo.model.MonthlyComments;
@@ -15,6 +8,11 @@ import com.example.demo.primitive.ID;
 import com.example.demo.primitive.Month;
 import com.example.demo.primitive.Year;
 import com.example.demo.repository.MonthlyCommentRepository;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -25,7 +23,10 @@ public class MonthlyCommentService {
     public MonthlyComments getAnnualy(int year) {
         List<MonthlyCommentEntity> entities = repository.findAll();
         MonthlyComments newComments = new MonthlyComments(
-                entities.stream().map(i -> convertEntityToModel(i)).collect(Collectors.toList()));
+                entities.stream()
+                        .filter(i -> i.getYear() == year)
+                        .map(i -> convertEntityToModel(i))
+                        .collect(Collectors.toList()));
         return newComments;
     }
 

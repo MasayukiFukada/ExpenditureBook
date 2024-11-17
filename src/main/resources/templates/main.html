@@ -216,6 +216,7 @@
                  }).then(x => {
                      this.aggregates = x.data
                      this.totalAmmount = x.data.totalAmmount
+                     this.refresh_comments()
                  })
              },
              refresh_comments: async function(){
@@ -393,7 +394,6 @@
            mounted() {
                // INFO: コンポーネントがマウントされた後
                this.create_chart()
-               this.refresh_comments()
            }
          })
          </script>
