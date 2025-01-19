@@ -37,6 +37,5 @@ entity "MonthlyComment" as cmt {
 }
 
 exp ||--|{ cat
-exp ||--|{ cmt
 
 @enduml
