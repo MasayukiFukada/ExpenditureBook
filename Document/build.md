@@ -58,4 +58,5 @@
 
 * フックを利用して何かを行いたい場合、フックのパスを Git で管理できる別の場所に移すこともできる
 * git config --local core.hooksPath .githooks
-  * [参考](https://zenn.dev/sun_asterisk/articles/97d2b4be675c06
+  * [参考](https://qiita.com/MasaoSasaki/items/fb741b54d807a49c2817)
+
