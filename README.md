@@ -23,6 +23,46 @@
 
 ## ビルドについて
 
+* [ファイル] - [ファイルシステムからプロジェクトを開く] でプロジェクトルート( README.md を含む )を開くこと
+    * src を開くとプロジェクトがうまく読み込まれないかも
+
+* mise による管理
+    * java のバージョンなどを管理
+    * `mise i` で .mise.toml に従って必要なバージョンをインストールして切り替わる
+        * `mise ls` で現在インストール済みと使用しているバージョンを確認
+        * `mise ls-remote java` で java のインストール可能なバージョンを表示
+
+* Gradle の Java ホームを設定するのが大事 ( 上記の mise 管理 )
+    * [ウィンドウ]-[設定]から Gradle に関する設定を行う
+      * /home/minamo/.local/share/mise/installs/java/21.0.0
+          * の様な値を設定する
+      * Gradle のビルドを実行するのではなく、リフレッシュすることで色々動く様子
+
+* `docker compose up` で DB 用のコンテナが立ち上がる
+    * `docker compose exec db /bin/bash` で DB コンテナに繋がる
+    * コンテナにファイルを送信する `docker cp <送るファイルのパス> expenditure-db:<送り先のパス>`
+      * コンテナの指定の方法が違うので注意
+
+* `my.conf` の中に user, password を書いておく ( db コンテナの /etc/mysql/conf.d に接続済み )
+    * 書いてないとインポートできない
+    * `mysql ExpenditureBook < {データ}` でインポートできる
+        * ！文字コードに注意！コンテナの中で実行せずに dbeaver など外部のツールで UPDATE 発行する方が良いかも
+            * 逆に環境の影響で DB に変な値で書き込んでいたらコンテナに繋いで出力した方が良いかも
+
+* その後プロジェクトを動かすことで DB のマイグレーションなどが起こる
+    * 必要なら DB をインポートするなりしてデータをセットする
+
+* Spring Boot など必要なプラグインなどをインストールする必要がある
+    * バージョンなどは参考までに実際に使っていたもの
+    * マーケットプレイスより
+        * Spring Tool 4(aka Spring Tool Suite-4) 4.27.0.RELEASE
+    * 手動
+        * lombok
+            * 公式から jar をダウンロードして実行 `java -jar <lombok.jarのパス>`
+        * EditorConfig
+        * Buildship Gradle Integration 3.0
+            * Eclipse 標準かも
+
 * Gradle との兼ね合いに注意
     * JDK とのバージョンに問題なければ `gradlew build` で jar ができる
         * Eclipse からではなくプロンプトから直接叩いた
@@ -52,3 +92,4 @@
     * サンプル
       * lizard -l java -C 7 -T nloc=27 -s cyclomatic_complexity -a 4 -x "./src/test/*" --csv > lizard.csv
       * lizard -l java -C 7 -T nloc=27 -s cyclomatic_complexity -a 4 -x "./src/test/*" --html > lizard.html
+
