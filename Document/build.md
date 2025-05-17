@@ -34,6 +34,7 @@
       * EditorConfig
       * Buildship Gradle Integration 3.0
         * これは Eclipse 標準かも
+  * Eclipse からは「Boot ダッシュボード」でサーバーを立ち上げればＯＫ
 
 * `docker compose up` で DB 用のコンテナが立ち上がる
   * コンテナにファイルを送信する `docker cp <送るファイルのパス> expenditure-db:<送り先のパス>`
@@ -53,6 +54,13 @@
   * JDK とのバージョンに問題なければ `gradlew build` で jar ができる
     * Eclipse からではなくプロンプトから直接叩いた
     * `build_jar.{ bat | sh }` があるので実行、もしくは参考にする
+      * テストで DB への接続もあるので、コンテナを起動しておくこと
+
+* 外部データベースマネージャを利用する
+  * Docker compose の起動用設定もある
+  * 外部のマネージャを使う場合はデータベースを作成する必要がある
+    * src/main/resources/sql/000_create_database.sql
+    * 対象のマネージャで SQL を実行
 
 ## Git のフック環境
 
