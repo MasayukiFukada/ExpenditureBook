@@ -69,7 +69,7 @@
                                                 <div class="select is-rounded">
                                                     <select id="select_year">
                                                         <th:block th:each="year:${yearSelect}">
-                                                        <option th:value="${year}" th:text="${year}"></option>
+                                                        <option th:value="${year}" th:text="${year}" th:selected="${year == currentYear}"></option>
                                                         </th:block>
                                                     </select>
                                                 </div>

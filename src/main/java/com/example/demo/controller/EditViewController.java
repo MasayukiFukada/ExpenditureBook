@@ -43,12 +43,17 @@ public class EditViewController {
         Categories categories = categoryService.getEnable();
         model.addAttribute("categoryMaster", categories.getItems());
 
-        List<Integer> rangeYear = IntStream.rangeClosed(2024, today.getYear()).boxed().collect(Collectors.toList());
+        List<Integer> rangeYear = IntStream.rangeClosed(2024, today.getYear())
+            .map(i -> -i)
+            .sorted()
+            .map(i -> -i)
+            .boxed().collect(Collectors.toList());
         model.addAttribute("yearSelect", rangeYear);
 
         List<Integer> rangeMonth = IntStream.rangeClosed(1, 12).boxed().collect(Collectors.toList());
         model.addAttribute("monthSelect", rangeMonth);
 
+        model.addAttribute("currentYear", today.getYear());
         model.addAttribute("currentMonth", today.getMonthValue());
         return "edit.html";
     }
