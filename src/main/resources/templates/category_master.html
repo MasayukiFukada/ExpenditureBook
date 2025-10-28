@@ -12,163 +12,126 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
     </head>
     <body>
-        <div id='app'>
-            <section class="hero is-small is-info">
-                <div class="hero-heard">
-                    <div class="navbar">
-                        <div class="navbar-menu">
-                            <div class="navbar-start">
-                                <a class="navbar-item" href="/">トップへ戻る</a>
-                            </div>
-                        </div>
+        <div id='app' class="container is-fluid">
+            <nav class="navbar" role="navigation" aria-label="main navigation">
+                <div class="navbar-brand">
+                    <p class="navbar-item title is-4">カテゴリ設定</p>
+                </div>
+                <div class="navbar-menu">
+                    <div class="navbar-start">
+                        <a class="navbar-item" href="/">トップへ戻る</a>
                     </div>
                 </div>
-                <div class="hero-body">
-                    <p class="title">カテゴリマスタメンテナンス</p>
-                </div>
-            </section>
+            </nav>
+
             <section class="section">
-                <div class="columns">
-                    <div class="column is-three-fifths">
-                        <table class="table is-bordered is-striped is-hoverable is-fullwidth">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>種別</th>
-                                    <th>カテゴリ名</th>
-                                    <th>備考</th>
-                                    <th>並び順</th>
-                                    <th>有効</th>
-                                    <th>作成日</th>
-                                    <th>更新日</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="data in list" @click="onClick_Table(data)">
-                                    <td>{{data.id}}</td>
-                                    <td>{{data.type}}</td>
-                                    <td>{{data.name}}</td>
-                                    <td>{{data.note}}</td>
-                                    <td>{{data.sortOrderNo}}</td>
-                                    <td>{{data.enable}}</td>
-                                    <td>{{data.createAt}}</td>
-                                    <td>{{data.updateAt}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="column">
-                        <div id="editor" class="card">
-                            <div class="card-header">
-                                <p class="card-header-title">カテゴリ</p>
+                <div class="box">
+                    <div class="field is-horizontal">
+                        <div class="field-body">
+                            <div class="field">
+                                <label for="txt_id" class="label is-small">ID (空で新規)</label>
+                                <p class="control has-icons-left">
+                                    <input id="txt_id" class="input" type="text" placeholder="更新するID">
+                                    <span class="icon is-small is-left"><i class="far fa-address-card"></i></span>
+                                </p>
                             </div>
-                            <div class="card-content">
-                                <div class="content">
-                                    <div class="columns">
-                                        <div class="column is-one-quarter">
-                                        </div>
-                                        <div class="column">
-                                            <div class="field">
-                                                <label for="txt_create_at" class="label is-small">作成日時:</label>
-                                                <p class="control has-icons-left">
-                                                    <input id="txt_create_at" class="input" type="text" placeholder="※ 自動入力">
-                                                    <span class="icon is-small is-left">
-                                                        <i class="far fa-calendar"></i>
-                                                    </span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="column">
-                                            <div class="field">
-                                                <label for="txt_update_at" class="label is-small">更新日時:</label>
-                                                <p class="control has-icons-left">
-                                                    <input id="txt_update_at" class="input" type="text" placeholder="※ 自動入力">
-                                                    <span class="icon is-small is-left">
-                                                        <i class="far fa-calendar"></i>
-                                                    </span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="columns is-vcentered">
-                                        <div class="column is-one-fifth">
-                                            <div class="field">
-                                                <label for="txt_enable" class="label is-small">有効:</label>
-                                                <div class="control" style="text-align: center;">
-                                                    <input id="txt_enable" type="checkbox" placeholder="">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="column">
-                                            <div class="field">
-                                                <label for="txt_id" class="label is-small">ID:</label>
-                                                <p class="control has-icons-left">
-                                                    <input id="txt_id" class="input" type="text" placeholder="空なら新規、値があれば更新">
-                                                    <span class="icon is-small is-left">
-                                                        <i class="far fa-address-card"></i>
-                                                    </span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="columns">
-                                        <div class="column is-one-fifth">
-                                            <div class="field">
-                                                <label for="select_type" class="label is-small">種別:</label>
-                                                <div class="control" style="text-align: center;">
-                                                    <div class="select">
-                                                        <select id="select_type">
-                                                            <option value="0">固定費</option>
-                                                            <option value="1">変動費</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="column is-one-fifth">
-                                            <div class="field">
-                                                <label for="txt_sort_order" class="label is-small">並び順:</label>
-                                                <p class="control has-icons-left">
-                                                    <input id="txt_sort_order" class="input" type="number" placeholder="項目の表示順">
-                                                    <span class="icon is-small is-left">
-                                                        <i class="fas fa-list-ol"></i>
-                                                    </span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="column is-one-fifth">
-                                            <div class="field">
-                                                <label for="txt_name" class="label is-small">カテゴリ名:</label>
-                                                <p class="control has-icons-left">
-                                                    <input id="txt_name" class="input" type="text" placeholder="入力時に表示される名前">
-                                                    <span class="icon is-small is-left">
-                                                        <i class="fas fa-tag"></i>
-                                                    </span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="column">
-                                            <div class="field">
-                                                <label for="txt_note" class="label is-small">備考:</label>
-                                                <p class="control has-icons-left">
-                                                    <input id="txt_note" class="input" type="text" placeholder="表示されることはないが、カテゴリ選択の指針のメモ">
-                                                    <span class="icon is-small is-left">
-                                                        <i class="far fa-comment"></i>
-                                                    </span>
-                                                </p>
-                                            </div>
-                                        </div>
+                            <div class="field">
+                                <label for="txt_name" class="label is-small">カテゴリ名</label>
+                                <p class="control has-icons-left">
+                                    <input id="txt_name" class="input" type="text" placeholder="入力時に表示される名前">
+                                    <span class="icon is-small is-left"><i class="fas fa-tag"></i></span>
+                                </p>
+                            </div>
+                            <div class="field">
+                                <label for="select_type" class="label is-small">種別</label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select id="select_type">
+                                            <option value="0">固定費</option>
+                                            <option value="1">変動費</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-footer">
-                                <a href="#" class="card-footer-item has-text-success has-background-success-light" @click="onPush_Submit()">更新</a>
-                                <a href="#" class="card-footer-item has-text-grey-light" @click="onPush_New()">新規作成</a>
+                            <div class="field">
+                                <label for="txt_sort_order" class="label is-small">並び順</label>
+                                <p class="control has-icons-left">
+                                    <input id="txt_sort_order" class="input" type="number" placeholder="項目の表示順">
+                                    <span class="icon is-small is-left"><i class="fas fa-list-ol"></i></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="txt_note" class="label is-small">備考</label>
+                        <p class="control has-icons-left">
+                            <input id="txt_note" class="input" type="text" placeholder="表示されることはないが、カテゴリ選択の指針のメモ">
+                            <span class="icon is-small is-left"><i class="far fa-comment"></i></span>
+                        </p>
+                    </div>
+                    <div class="field">
+                        <label for="txt_enable" class="label is-small">有効</label>
+                        <div class="control">
+                            <input id="txt_enable" type="checkbox">
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="field is-grouped">
+                        <div class="control">
+                            <button class="button is-success" @click="onPush_Submit()">更新 / 登録</button>
+                        </div>
+                        <div class="control">
+                            <button class="button is-light" @click="onPush_New()">フォームクリア</button>
+                        </div>
+                    </div>
+                    <div class="field is-horizontal">
+                         <div class="field-body">
+                            <div class="field">
+                                <label for="txt_create_at" class="label is-small">作成日時</label>
+                                <p class="control">
+                                    <input id="txt_create_at" class="input" type="text" readonly>
+                                </p>
+                            </div>
+                            <div class="field">
+                                <label for="txt_update_at" class="label is-small">更新日時</label>
+                                <p class="control">
+                                    <input id="txt_update_at" class="input" type="text" readonly>
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="box">
+                    <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>種別</th>
+                                <th>カテゴリ名</th>
+                                <th>備考</th>
+                                <th>並び順</th>
+                                <th>有効</th>
+                                <th>作成日</th>
+                                <th>更新日</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="data in list" @click="onClick_Table(data)" :class="{ 'is-selected': data.id == selectedId }">
+                                <td>{{data.id}}</td>
+                                <td>{{data.type}}</td>
+                                <td>{{data.name}}</td>
+                                <td>{{data.note}}</td>
+                                <td>{{data.sortOrderNo}}</td>
+                                <td>{{data.enable}}</td>
+                                <td>{{data.createAt}}</td>
+                                <td>{{data.updateAt}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </section>
+        </div>
             <footer class="footer">
             </footer>
         </div>
@@ -177,7 +140,8 @@
         var app = new Vue({
           el: '#app',
           data: {
-            list: []
+            list: [],
+            selectedId: null
           },
           methods: {
               getUpdate: async function() {
@@ -190,6 +154,7 @@
                 })
               },
               onPush_New: function() {
+                  this.selectedId = null;
                   document.getElementById("txt_enable").checked = true
                   document.getElementById("txt_id").value = ""
                   document.getElementById("txt_name").value = ""
@@ -211,15 +176,17 @@
                       create_at: document.getElementById("txt_create_at").value,
                       update_at: document.getElementById("txt_update_at").value
                   }).then(x => {
-                      location.reload()
+                      this.getUpdate();
+                      this.onPush_New();
                   })
               },
               onClick_Table: function(obj) {
+                  this.selectedId = obj.id;
                   document.getElementById("txt_id").value = obj.id
                   const dataValue = obj.type
                   const selectBox = document.getElementById("select_type")
                   for(const option of selectBox.options) {
-                      if(option.value == dataValue) {
+                      if(option.text == dataValue) {
                           option.selected = true
                       }
                   }

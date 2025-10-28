@@ -16,177 +16,135 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
     </head>
     <body>
-        <div id="app">
-            <section class="hero is-small is-warning">
-                <div class="hero-heard">
-                    <div class="navbar">
-                        <div class="navbar-menu">
-                            <div class="navbar-start">
-                                <a class="navbar-item is-active" href="/edit">項目編集画面へ</a>
-                                <a class="navbar-item" href="/category_master">カテゴリマスタメンテ画面へ</a>
-                            </div>
-                        </div>
+        <div id="app" class="container is-fluid">
+            <nav class="navbar" role="navigation" aria-label="main navigation">
+                <div class="navbar-brand">
+                    <a class="navbar-item" href="/">
+                        <p class="title">出費管理</p>
+                    </a>
+                </div>
+                <div class="navbar-menu">
+                    <div class="navbar-start">
+                        <a class="navbar-item" href="/edit">項目編集</a>
+                        <a class="navbar-item" href="/category_master">カテゴリ設定</a>
                     </div>
                 </div>
-                <div class="hero-body">
-                    <p class="title">出費管理</p>
-                </div>
-            </section>
+            </nav>
+
             <section class="section">
-                <div class="columns">
-                    <div class="column is-two-fifths">
-                        <div class="columns">
-                            <div class="column">
-                                <div id="subTotalChart"></div>
+                <div class="box">
+                    <div class="columns is-vcentered">
+                        <div class="column is-narrow">
+                            <div class="field has-addons">
+                                <div class="control">
+                                    <div class="select">
+                                        <select id="select_year" @change="onPush_filter()">
+                                            <th:block th:each="data:${year}">
+                                                <option th:value="${data}" th:text="${data}" th:selected="${data == currentYear}"></option>
+                                            </th:block>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="control">
+                                    <a class="button is-info">年 表示</a>
+                                </div>
                             </div>
                         </div>
-                        <div class="columns">
-                            <div class="column">
-                                <div id="categoryChart"></div>
+                        <div class="column">
+                            <div class="level">
+                                <div class="level-item has-text-centered">
+                                    <div>
+                                        <p class="heading">年間合計</p>
+                                        <p class="title">{{totalAmmount}} 円</p>
+                                    </div>
+                                </div>
+                                <div class="level-item has-text-centered">
+                                    <div>
+                                        <p class="heading">選択月</p>
+                                        <p class="title">{{selectedMonth}} 月</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="columns">
-                            <div class="column">
-                                <div id="chart"></div>
+                        <div class="column is-narrow">
+                            <div class="file is-info has-name">
+                                <label class="file-label">
+                                    <input id="input_file" class="file-input" type="file" name="resume" @change="onFileChange"/>
+                                    <span class="file-cta">
+                                        <span class="file-icon"><i class="fas fa-upload"></i></span>
+                                        <span class="file-label">CSV選択</span>
+                                    </span>
+                                    <span class="file-name">{{ csvFileName }}</span>
+                                </label>
                             </div>
+                             <a class="button is-info is-fullwidth" @click="onPush_loadCSV()">CSV読み込み</a>
                         </div>
                     </div>
-                    <div class="column">
-                        <div class="columns">
-                            <div class="column">
-                                <div id="editor" class="card">
-                                    <div class="card-header">
-                                        <p class="card-header-title">フィルター</p>
-                                    </div>
-                                    <div class="card-content">
-                                        <div class="content">
-                                            <div class="column">
-                                                <div class="field">
-                                                    <div class="control" style="text-align: center;">
-                                                        <div class="select">
-                                                            <select id="select_year">
-                                                                <th:block th:each="data:${year}">
-                                                                    <option th:value="${data}" th:text="${data}" th:selected="${data == currentYear}"></option>
-                                                                </th:block>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-footer">
-                                        <a href="#tbl_result" class="card-footer-item has-text-info has-background-info-light" @click="onPush_filter()">表示</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="column">
-                                <div id="editor" class="card">
-                                    <div class="card-header">
-                                        <p class="card-header-title">年間合計</p>
-                                    </div>
-                                    <div class="card-content">
-                                        <div class="content">
-                                            <div class="is-size-2">合計: {{totalAmmount}} 円<BR>{{selectedMonth}}月 選択</div>
-                                        </div>
-                                    </div>
-                                    <div class="card-footer">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="column">
-                                <div id="editor" class="card">
-                                    <div class="card-header">
-                                        <p class="card-header-title">CSV 読み込み</p>
-                                    </div>
-                                    <div class="card-content">
-                                        <div class="content">
-                                            <div class="file has-name is-centered">
-                                              <label class="file-label">
-                                                <input id="input_file" class="file-input" type="file" name="resume" />
-                                                <span class="file-cta">
-                                                  <span class="file-icon">
-                                                    <i class="fas fa-upload"></i>
-                                                  </span>
-                                                  <span class="file-label">CSV選択</span>
-                                                </span>
-                                                <span class="file-name">ファイル名(※未実装)</span>
-                                              </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-footer">
-                                        <a href="#" class="card-footer-item has-text-danger has-background-danger-light" @click="onPush_loadCSV()">CSV読み込み</a>
-                                    </div>
-                                </div>
-                            </div>
+                </div>
+
+                <div class="box">
+                    <div class="columns">
+                        <div class="column">
+                            <p class="subtitle has-text-centered">各月総支出</p>
+                            <div id="subTotalChart"></div>
                         </div>
-                        <div class="columns">
-                            <div class="column">
-                                <div id="editor" class="card">
-                                    <div class="card-header">
-                                        <p class="card-header-title">月のコメント</p>
-                                    </div>
-                                    <div class="card-content">
-                                        <div class="content">
-                                                <div class="field">
-                                                    <label for="txt_comment_note" class="label is-small">コメント:</label>
-                                                    <p class="control has-icons-left">
-                                                        <input id="txt_comment_note" class="input" type="text" placeholder=""/>
-                                                        <span class="icon is-small is-left">
-                                                            <i class="far fa-comment"></i>
-                                                        </span>
-                                                        <input id="txt_comment_id" class="input" type="hidden" placeholder=""/>
-                                                    </p>
-                                                </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-footer">
-                                        <a href="#" class="card-footer-item has-text-success has-background-success-light" @click="update_comment()">更新</a>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="column">
+                            <p class="subtitle has-text-centered">カテゴリ別支出</p>
+                            <div id="categoryChart"></div>
                         </div>
-                        <div class="columns">
-                            <div class="column">
-                                <div class="columns">
-                                     <div class="column">
-                                         <Table id="tbl_result" class="table is-bordered is-striped is-hoverable is-fullwidth">
-                                             <thead>
-                                                 <tr>
-                                                     <th>月</th>
-                                                     <th class="is-primary">小計</th>
-                                                     <th>住居</th>
-                                                     <th>水道光熱</th>
-                                                     <th>通信</th>
-                                                     <th>保険</th>
-                                                     <th class="is-warning">食費</th>
-                                                     <th>日用</th>
-                                                     <th>被服</th>
-                                                     <th>交際</th>
-                                                     <th>交通</th>
-                                                     <th class="is-info">趣味</th>
-                                                     <th>教育</th>
-                                                     <th>医療</th>
-                                                     <th>特別</th>
-                                                     <th>雑費</th>
-                                                 </tr>
-                                             </thead>
-                                             <tbody>
-                                                 <tr @click="select(item)" v-for="(item,key) in aggregates.items">
-                                                     <td class="td_data_month"> {{item.month}} </td>
-                                                     <td class="td_data_sum has-background-primary-light"> {{item.subTotalAmmount}} </td>
-                                                     <td class="td_data_ammount" v-for="(c_item,c_key) in item.items" >
-                                                         {{c_item.categoryAmmount}}
-                                                     </td>
-                                                 </tr>
-                                             </tbody>
-                                         </Table>
-                                     </div>
-                                </div>
-                            </div>
+                        <div class="column">
+                            <p id="donut-title" class="subtitle has-text-centered"></p>
+                            <div id="chart"></div>
                         </div>
                     </div>
+                </div>
+
+                <div class="box">
+                    <p class="subtitle">月のコメント</p>
+                    <div class="field has-addons">
+                        <div class="control has-icons-left is-expanded">
+                            <input id="txt_comment_note" class="input" type="text" placeholder="コメント入力..."/>
+                            <span class="icon is-small is-left"><i class="far fa-comment"></i></span>
+                            <input id="txt_comment_id" class="input" type="hidden"/>
+                        </div>
+                        <div class="control">
+                            <button class="button is-success" @click="update_comment()">コメント更新</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <Table id="tbl_result" class="table is-bordered is-striped is-hoverable is-fullwidth">
+                        <thead>
+                            <tr>
+                                <th>月</th>
+                                <th class="is-primary">小計</th>
+                                <th>住居</th>
+                                <th>水道光熱</th>
+                                <th>通信</th>
+                                <th>保険</th>
+                                <th class="is-warning">食費</th>
+                                <th>日用</th>
+                                <th>被服</th>
+                                <th>交際</th>
+                                <th>交通</th>
+                                <th class="is-info">趣味</th>
+                                <th>教育</th>
+                                <th>医療</th>
+                                <th>特別</th>
+                                <th>雑費</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr @click="select(item)" v-for="(item,key) in aggregates.items" :class="{ 'is-selected': item.month == selectedMonth }">
+                                <td class="td_data_month"> {{item.month}} </td>
+                                <td class="td_data_sum has-background-primary-light"> {{item.subTotalAmmount}} </td>
+                                <td class="td_data_ammount" v-for="(c_item,c_key) in item.items" >
+                                    {{c_item.categoryAmmount}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </Table>
                 </div>
             </section>
             <footer class="footer">
@@ -207,8 +165,16 @@
            ,   totalAmmount: 0
            ,   subTotalChart: null
            ,   categoryChart: null
+           ,   csvFileName: 'ファイル未選択'
            },
            methods: {
+             onFileChange: function(e) {
+                if (e.target.files && e.target.files.length > 0) {
+                    this.csvFileName = e.target.files[0].name;
+                } else {
+                    this.csvFileName = 'ファイル未選択';
+                }
+             },
              onPush_filter: async function() {
                  var url = "/aggregate_filter"
                  await axios.post(url,{
@@ -254,11 +220,6 @@
                     }
                     let index = 0
                     // カテゴリの種類毎にループ
-                    // NOTE: こんな感じで増えていく
-                    // 住居, 水道光熱
-                    // 1月 → 住居, 49500, 水道光熱, 5000
-                    // 2月 → 住居, 49500, 49500, 水道光熱, 5000, 4000
-                    // NOTE: 年間のグラフ( 棒、折れ線 )なので当然 13 月は含めない
                     if(item.month < 13) {
                         item.items.forEach((cat) =>{
                             this.category[index].push(cat.categoryAmmount)
@@ -270,7 +231,6 @@
                  // 内訳のデータ
                  this.columns = []
                  obj.items.forEach((item) => {
-                    // INFO: 値がゼロで追加しても円グラフ的に上手く捌いてくれる
                     var array = []
                     array.push(item.categoryName)
                     array.push(item.categoryAmmount)
@@ -279,7 +239,7 @@
                  this.subTotalChart.load({columns: this.series})
                  this.categoryChart.load({columns: this.category})
                  this.chart.load({columns: this.columns})
-                 this.chart.title = this.selectedMonth + '月の消費割合'
+                 document.getElementById("donut-title").innerText = this.selectedMonth + '月 内訳'
                  this.load_comment(this.selectedMonth)
              },
              load_comment: function(month) {
@@ -307,9 +267,6 @@
                  })
              },
              create_chart: function() {
-                // HACK: X 軸を 1 から始めたいが、後からデータだけを差し込もうとすると
-                //       ラベルがエラーになるようなので、ダミーデータを渡している。
-                //       グラフの設定が終わった時点で非表示(hide)にしている
                 this.subTotalChart = bb.generate({
                     bindto: '#subTotalChart'
                 ,   data: {
@@ -317,8 +274,7 @@
                     ,   x: "x"
                     ,   columns: [
                             ["x", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-                        ,   [".", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] // !必要! dummy データ
-                        ,   this.columns
+                        ,   [".", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
                         ]
                     }
                 })
@@ -331,7 +287,7 @@
                     ,   x: "x"
                     ,   columns: [
                             ["x", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-                        ,   [".", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] // !必要! dummy データ
+                        ,   [".", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                         ,   this.category
                         ]
                     }
@@ -344,10 +300,8 @@
                         type : 'donut'
                     ,   columns: this.columns
                     }
-                ,   donut: {
-                        title: '月の消費割合'
-                    }
                 })
+                document.getElementById("donut-title").innerText = '月を選択してください'
              },
              send_csv: async function(values) {
                 var url = "/register_csv"
@@ -363,36 +317,34 @@
                 })
              },
              onPush_loadCSV: function() {
-                // CSV 読み込み。
-                // MEMO: 権限とか要るかと思ったけど不要そう
+                let input = document.getElementById("input_file");
+                if (input.files.length === 0) {
+                    alert('CSVファイルを選択してください。');
+                    return;
+                }
                 let reader = new FileReader()
-                reader.onload = function (e) {
-                    // 読み込み完了時の処理
-                    // 改行コードは環境に依るかも
-                    let rows = e.target.result.split(/\r\n/)
+                reader.onload = (e) => {
+                    let rows = e.target.result.split(/\r\n|\n/)
                     var firstLine = true
                     rows.forEach((item) => {
                         if(firstLine) {
-                            // 見出し行だけ飛ばす
                             firstLine = false
                         }else{
                             let values = item.split(/,/)
                             if(values.length > 1) {
-                                app.send_csv(values)
+                                this.send_csv(values)
                             }
                         }
                      })
+                    alert('CSVの読み込みが完了しました。画面を更新して確認してください。');
                 }
-                let tag =document.getElementById("input_file")
-                reader.readAsText(tag.files[0])
+                reader.readAsText(input.files[0])
              }
            },
            beforeMount() {
-               // INFO: コンポーネントがマウントされる前
                this.onPush_filter()
            },
            mounted() {
-               // INFO: コンポーネントがマウントされた後
                this.create_chart()
            }
          })
