@@ -56,16 +56,22 @@ public class MainViewController {
 
     @GetMapping(path = "/")
     public String mainView(Model model) {
-        Calendar calendar = Calendar.getInstance();
-        int thisYear = calendar.get(Calendar.YEAR);
-        List<Integer> years = IntStream.rangeClosed(thisYear - 5, thisYear).boxed().collect(Collectors.toList());
-        Collections.reverse(years);
-        model.addAttribute("year", years);
-
         aggregateService.Initialize(categoryService);
 
         LocalDate today = LocalDate.now();
+        List<Integer> years = IntStream.rangeClosed(2024, today.getYear())
+            .map(i -> -i)
+            .sorted()
+            .map(i -> -i)
+            .boxed().collect(Collectors.toList());
+        model.addAttribute("year", years);
         model.addAttribute("currentYear", today.getYear());
+
+        List<Integer> rangeMonth = IntStream.rangeClosed(1, 12).boxed().collect(Collectors.toList());
+        model.addAttribute("monthSelect", rangeMonth);
+        model.addAttribute("currentMonth", today.getMonthValue());
+
+        model.addAttribute("categoryMaster", categoryService.getEnable().getItems());
 
         return "main.html";
     }

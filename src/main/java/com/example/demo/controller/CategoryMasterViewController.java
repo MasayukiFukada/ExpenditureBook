@@ -27,10 +27,7 @@ public class CategoryMasterViewController {
     @Autowired
     CategoryService categoryService;
 
-    @GetMapping(path = "/category_master")
-    public String categoryMaster(Model model) {
-        return "category_master.html";
-    }
+
 
     @GetMapping("/categories")
     @ResponseBody

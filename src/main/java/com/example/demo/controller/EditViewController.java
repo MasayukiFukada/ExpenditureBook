@@ -36,27 +36,7 @@ public class EditViewController {
     @Autowired
     ExpenditureService expenditureService;
 
-    @GetMapping(path = "/edit")
-    public String editScreen(Model model) {
-        LocalDate today = LocalDate.now();
 
-        Categories categories = categoryService.getEnable();
-        model.addAttribute("categoryMaster", categories.getItems());
-
-        List<Integer> rangeYear = IntStream.rangeClosed(2024, today.getYear())
-            .map(i -> -i)
-            .sorted()
-            .map(i -> -i)
-            .boxed().collect(Collectors.toList());
-        model.addAttribute("yearSelect", rangeYear);
-
-        List<Integer> rangeMonth = IntStream.rangeClosed(1, 12).boxed().collect(Collectors.toList());
-        model.addAttribute("monthSelect", rangeMonth);
-
-        model.addAttribute("currentYear", today.getYear());
-        model.addAttribute("currentMonth", today.getMonthValue());
-        return "edit.html";
-    }
 
     // SpringBoot で JSON を返す参考資料
     // https://qiita.com/take_ksk/items/845dfe496b2d4e6baac3

@@ -2,352 +2,633 @@
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <!-- ◆◆◆ d3.js はバージョンに注意 -->
         <script src="/chart/d3.js"  charset="utf-8"></script>
         <script src="/chart/billboard.js"></script>
         <link th:href="@{/chart/insight.css}" rel="stylesheet" />
         <script src="https://unpkg.com/vue@2.7.16"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <title>出費管理</title>
-        <!-- ◆◆◆ Font awesome -->
         <link href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" rel="stylesheet">
-        <!-- ◆◆◆ Bulma -->
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
     </head>
     <body>
-        <div id="app" class="container is-fluid">
-            <nav class="navbar" role="navigation" aria-label="main navigation">
-                <div class="navbar-brand">
-                    <a class="navbar-item" href="/">
-                        <p class="title">出費管理</p>
-                    </a>
-                </div>
-                <div class="navbar-menu">
-                    <div class="navbar-start">
-                        <a class="navbar-item" href="/edit">項目編集</a>
-                        <a class="navbar-item" href="/category_master">カテゴリ設定</a>
-                    </div>
-                </div>
-            </nav>
+        <div id="app" 
+             th:inline="none"
+             th:data-years="${year}"
+             th:data-current-year="${currentYear}"
+             th:data-months="${monthSelect}"
+             th:data-current-month="${currentMonth}"
+             th:data-category-master="${categoryMaster}"
+             class="columns">
+            <aside class="column is-2 is-narrow-mobile is-fullheight section is-hidden-mobile has-background-light">
+                <p class="menu-label is-hidden-touch">ナビゲーション</p>
+                <ul class="menu-list">
+                    <li>
+                        <a @click="setView('main')" :class="{ 'is-active': currentView === 'main' }">
+                            <span class="icon"><i class="fa fa-chart-bar"></i></span> ダッシュボード
+                        </a>
+                    </li>
+                    <li>
+                        <a @click="setView('edit')" :class="{ 'is-active': currentView === 'edit' }">
+                            <span class="icon"><i class="fa fa-edit"></i></span> 支出編集
+                        </a>
+                    </li>
+                    <li>
+                        <a @click="setView('category')" :class="{ 'is-active': currentView === 'category' }">
+                            <span class="icon"><i class="fa fa-cogs"></i></span> カテゴリ設定
+                        </a>
+                    </li>
+                </ul>
+            </aside>
 
-            <section class="section">
-                <div class="box">
-                    <div class="columns is-vcentered">
-                        <div class="column is-narrow">
+            <div class="column">
+                <!-- Main (Dashboard) View -->
+                <div v-if="currentView === 'main'">
+                    <section class="section">
+                        <div class="box">
+                            <div class="columns is-vcentered">
+                                <div class="column is-narrow">
+                                    <div class="field has-addons">
+                                        <div class="control">
+                                            <div class="select">
+                                                <select id="main_select_year" @change="main_onPush_filter()" v-model="currentYear">
+                                                    <option v-for="y in yearSelect" :value="y">{{y}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="control">
+                                            <a class="button is-info">年 表示</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="column">
+                                    <div class="level">
+                                        <div class="level-item has-text-centered">
+                                            <div>
+                                                <p class="heading">年間合計</p>
+                                                <p class="title">{{totalAmmount}} 円</p>
+                                            </div>
+                                        </div>
+                                        <div class="level-item has-text-centered">
+                                            <div>
+                                                <p class="heading">選択月</p>
+                                                <p class="title">{{selectedMonth}} 月</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="column is-narrow">
+                                    <div class="file is-info has-name">
+                                        <label class="file-label">
+                                            <input id="main_input_file" class="file-input" type="file" name="resume" @change="onFileChange"/>
+                                            <span class="file-cta">
+                                                <span class="file-icon"><i class="fas fa-upload"></i></span>
+                                                <span class="file-label">CSV選択</span>
+                                            </span>
+                                            <span class="file-name">{{ csvFileName }}</span>
+                                        </label>
+                                    </div>
+                                     <a class="button is-info is-fullwidth" @click="main_onPush_loadCSV()">CSV読み込み</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="box">
+                            <div class="columns">
+                                <div class="column">
+                                    <p class="subtitle has-text-centered">各月総支出</p>
+                                    <div id="subTotalChart"></div>
+                                </div>
+                                <div class="column">
+                                    <p class="subtitle has-text-centered">カテゴリ別支出</p>
+                                    <div id="categoryChart"></div>
+                                </div>
+                                <div class="column">
+                                    <p id="donut-title" class="subtitle has-text-centered"></p>
+                                    <div id="chart"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="box">
+                            <p class="subtitle">月のコメント</p>
                             <div class="field has-addons">
-                                <div class="control">
-                                    <div class="select">
-                                        <select id="select_year" @change="onPush_filter()">
-                                            <th:block th:each="data:${year}">
-                                                <option th:value="${data}" th:text="${data}" th:selected="${data == currentYear}"></option>
-                                            </th:block>
-                                        </select>
-                                    </div>
+                                <div class="control has-icons-left is-expanded">
+                                    <input id="main_txt_comment_note" class="input" type="text" placeholder="コメント入力..."/>
+                                    <span class="icon is-small is-left"><i class="far fa-comment"></i></span>
+                                    <input id="main_txt_comment_id" class="input" type="hidden"/>
                                 </div>
                                 <div class="control">
-                                    <a class="button is-info">年 表示</a>
+                                    <button class="button is-success" @click="main_update_comment()">コメント更新</button>
                                 </div>
                             </div>
                         </div>
-                        <div class="column">
-                            <div class="level">
-                                <div class="level-item has-text-centered">
-                                    <div>
-                                        <p class="heading">年間合計</p>
-                                        <p class="title">{{totalAmmount}} 円</p>
+
+                        <div class="box">
+                            <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+                                <thead>
+                                    <tr>
+                                        <th>月</th><th class="is-primary">小計</th><th>住居</th><th>水道光熱</th><th>通信</th><th>保険</th>
+                                        <th class="is-warning">食費</th><th>日用</th><th>被服</th><th>交際</th><th>交通</th>
+                                        <th class="is-info">趣味</th><th>教育</th><th>医療</th><th>特別</th><th>雑費</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr @click="main_select(item)" v-for="(item,key) in aggregates.items" :class="{ 'is-selected': item.month == selectedMonth }">
+                                        <td>{{item.month}}</td>
+                                        <td class="has-background-primary-light">{{item.subTotalAmmount}}</td>
+                                        <td v-for="(c_item,c_key) in item.items">{{c_item.categoryAmmount}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Edit View -->
+                <div v-if="currentView === 'edit'">
+                    <section class="section">
+                        <div class="box">
+                            <div class="columns">
+                                <div class="column is-one-quarter">
+                                    <div class="field">
+                                        <label class="label">フィルター</label>
+                                        <div class="field has-addons">
+                                            <div class="control">
+                                                <div class="select">
+                                                    <select id="edit_select_year" @change="edit_onPush_filter()" v-model="currentYear">
+                                                        <option v-for="y in yearSelect" :value="y">{{y}}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="control">
+                                                <div class="select">
+                                                    <select id="edit_select_month" @change="edit_onPush_filter()" v-model="currentMonth">
+                                                        <option v-for="m in monthSelect" :value="m">{{m}}月</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="level-item has-text-centered">
-                                    <div>
-                                        <p class="heading">選択月</p>
-                                        <p class="title">{{selectedMonth}} 月</p>
+                                <div class="column">
+                                    <div class="field is-horizontal">
+                                        <div class="field-body">
+                                            <div class="field">
+                                                <label for="edit_date_register" class="label is-small">登録日</label>
+                                                <p class="control has-icons-left">
+                                                    <input id="edit_date_register" class="input" type="date">
+                                                    <span class="icon is-small is-left"><i class="far fa-calendar"></i></span>
+                                                </p>
+                                            </div>
+                                            <div class="field">
+                                                <label for="edit_select_category" class="label is-small">カテゴリ</label>
+                                                <div class="control">
+                                                    <div class="select is-fullwidth">
+                                                        <select id="edit_select_category">
+                                                            <option v-for="cat in categoryMaster" :value="cat.id.id">{{cat.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="field">
+                                                <label for="edit_txt_ammount" class="label is-small">金額</label>
+                                                <p class="control has-icons-left">
+                                                    <input id="edit_txt_ammount" class="input" type="number" />
+                                                    <span class="icon is-small is-left"><i class="fas fa-yen-sign"></i></span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field is-horizontal">
+                                        <div class="field-body">
+                                            <div class="field">
+                                                <label for="edit_txt_note" class="label is-small">備考</label>
+                                                <p class="control has-icons-left">
+                                                    <input id="edit_txt_note" class="input" type="text" placeholder=""/>
+                                                    <span class="icon is-small is-left"><i class="far fa-comment"></i></span>
+                                                </p>
+                                            </div>
+                                            <div class="field">
+                                                <label for="edit_txt_id" class="label is-small">ID (空で新規)</label>
+                                                <p class="control has-icons-left">
+                                                    <input id="edit_txt_id" class="input" type="text" placeholder="更新するID">
+                                                    <span class="icon is-small is-left"><i class="far fa-address-card"></i></span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="column is-one-quarter">
+                                    <div class="field is-grouped is-grouped-multiline">
+                                        <div class="control">
+                                            <button class="button is-success" @click="edit_onPush_submit()">更新 / 登録</button>
+                                        </div>
+                                        <div class="control">
+                                            <button class="button is-light" @click="edit_onPush_new()">フォームクリア</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="column is-narrow">
-                            <div class="file is-info has-name">
-                                <label class="file-label">
-                                    <input id="input_file" class="file-input" type="file" name="resume" @change="onFileChange"/>
-                                    <span class="file-cta">
-                                        <span class="file-icon"><i class="fas fa-upload"></i></span>
-                                        <span class="file-label">CSV選択</span>
-                                    </span>
-                                    <span class="file-name">{{ csvFileName }}</span>
-                                </label>
+
+                        <div class="box">
+                            <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+                                <thead>
+                                    <tr><th>ID</th><th>日付</th><th>カテゴリ</th><th>金額</th><th>備考</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr @click="edit_select(item)" v-for="(item,key) in expenditures"
+                                        :class="edit_row_class(item)">
+                                        <td>{{item.id}}</td><td>{{item.date}}</td><td>{{item.category_name}}</td>
+                                        <td>{{item.ammount}}</td><td>{{item.note}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Category Master View -->
+                <div v-if="currentView === 'category'">
+                    <section class="section">
+                        <div class="box">
+                            <div class="field is-horizontal">
+                                <div class="field-body">
+                                    <div class="field">
+                                        <label for="cat_txt_id" class="label is-small">ID (空で新規)</label>
+                                        <p class="control has-icons-left">
+                                            <input id="cat_txt_id" class="input" type="text" placeholder="更新するID">
+                                            <span class="icon is-small is-left"><i class="far fa-address-card"></i></span>
+                                        </p>
+                                    </div>
+                                    <div class="field">
+                                        <label for="cat_txt_name" class="label is-small">カテゴリ名</label>
+                                        <p class="control has-icons-left">
+                                            <input id="cat_txt_name" class="input" type="text" placeholder="入力時に表示される名前">
+                                            <span class="icon is-small is-left"><i class="fas fa-tag"></i></span>
+                                        </p>
+                                    </div>
+                                    <div class="field">
+                                        <label for="cat_select_type" class="label is-small">種別</label>
+                                        <div class="control">
+                                            <div class="select is-fullwidth">
+                                                <select id="cat_select_type">
+                                                    <option value="0">固定費</option><option value="1">変動費</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label for="cat_txt_sort_order" class="label is-small">並び順</label>
+                                        <p class="control has-icons-left">
+                                            <input id="cat_txt_sort_order" class="input" type="number" placeholder="項目の表示順">
+                                            <span class="icon is-small is-left"><i class="fas fa-list-ol"></i></span>
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                             <a class="button is-info is-fullwidth" @click="onPush_loadCSV()">CSV読み込み</a>
+                            <div class="field">
+                                <label for="cat_txt_note" class="label is-small">備考</label>
+                                <p class="control has-icons-left">
+                                    <input id="cat_txt_note" class="input" type="text" placeholder="カテゴリ選択の指針のメモ">
+                                    <span class="icon is-small is-left"><i class="far fa-comment"></i></span>
+                                </p>
+                            </div>
+                            <div class="field">
+                                <label for="cat_txt_enable" class="label is-small">有効</label>
+                                <div class="control"><input id="cat_txt_enable" type="checkbox"></div>
+                            </div>
+                            <hr>
+                            <div class="field is-grouped">
+                                <div class="control">
+                                    <button class="button is-success" @click="category_onPush_Submit()">更新 / 登録</button>
+                                </div>
+                                <div class="control">
+                                    <button class="button is-light" @click="category_onPush_New()">フォームクリア</button>
+                                </div>
+                            </div>
+                            <div class="field is-horizontal">
+                                 <div class="field-body">
+                                    <div class="field">
+                                        <label for="cat_txt_create_at" class="label is-small">作成日時</label>
+                                        <p class="control"><input id="cat_txt_create_at" class="input" type="text" readonly></p>
+                                    </div>
+                                    <div class="field">
+                                        <label for="cat_txt_update_at" class="label is-small">更新日時</label>
+                                        <p class="control"><input id="cat_txt_update_at" class="input" type="text" readonly></p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="box">
-                    <div class="columns">
-                        <div class="column">
-                            <p class="subtitle has-text-centered">各月総支出</p>
-                            <div id="subTotalChart"></div>
+                        <div class="box">
+                            <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th><th>種別</th><th>カテゴリ名</th><th>備考</th>
+                                        <th>並び順</th><th>有効</th><th>作成日</th><th>更新日</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="data in category_list" @click="category_onClick_Table(data)" :class="{ 'is-selected': data.id == category_selectedId }">
+                                        <td>{{data.id}}</td><td>{{data.type}}</td><td>{{data.name}}</td><td>{{data.note}}</td>
+                                        <td>{{data.sortOrderNo}}</td><td>{{data.enable}}</td><td>{{data.createAt}}</td><td>{{data.updateAt}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="column">
-                            <p class="subtitle has-text-centered">カテゴリ別支出</p>
-                            <div id="categoryChart"></div>
-                        </div>
-                        <div class="column">
-                            <p id="donut-title" class="subtitle has-text-centered"></p>
-                            <div id="chart"></div>
-                        </div>
-                    </div>
+                    </section>
                 </div>
-
-                <div class="box">
-                    <p class="subtitle">月のコメント</p>
-                    <div class="field has-addons">
-                        <div class="control has-icons-left is-expanded">
-                            <input id="txt_comment_note" class="input" type="text" placeholder="コメント入力..."/>
-                            <span class="icon is-small is-left"><i class="far fa-comment"></i></span>
-                            <input id="txt_comment_id" class="input" type="hidden"/>
-                        </div>
-                        <div class="control">
-                            <button class="button is-success" @click="update_comment()">コメント更新</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="box">
-                    <Table id="tbl_result" class="table is-bordered is-striped is-hoverable is-fullwidth">
-                        <thead>
-                            <tr>
-                                <th>月</th>
-                                <th class="is-primary">小計</th>
-                                <th>住居</th>
-                                <th>水道光熱</th>
-                                <th>通信</th>
-                                <th>保険</th>
-                                <th class="is-warning">食費</th>
-                                <th>日用</th>
-                                <th>被服</th>
-                                <th>交際</th>
-                                <th>交通</th>
-                                <th class="is-info">趣味</th>
-                                <th>教育</th>
-                                <th>医療</th>
-                                <th>特別</th>
-                                <th>雑費</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr @click="select(item)" v-for="(item,key) in aggregates.items" :class="{ 'is-selected': item.month == selectedMonth }">
-                                <td class="td_data_month"> {{item.month}} </td>
-                                <td class="td_data_sum has-background-primary-light"> {{item.subTotalAmmount}} </td>
-                                <td class="td_data_ammount" v-for="(c_item,c_key) in item.items" >
-                                    {{c_item.categoryAmmount}}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </Table>
-                </div>
-            </section>
-            <footer class="footer">
-            </footer>
+            </div>
         </div>
-        <script type="text/javascript">
+        <!-- Inject server-side model as safe JSON into a JS global so we don't need to parse dataset strings -->
+        <script th:inline="javascript">
+        /*<![CDATA[*/
+            window.__INITIAL_DATA__ = {
+                year: /*[[${year}]]*/ [],
+                currentYear: /*[[${currentYear}]]*/ null,
+                monthSelect: /*[[${monthSelect}]]*/ [],
+                currentMonth: /*[[${currentMonth}]]*/ null,
+                categoryMaster: /*[[${categoryMaster}]]*/ []
+            };
+        /*]]>*/
+        </script>
 
-         var app = new Vue({
-           el: '#app',
-           data: {
-               aggregates: []
-           ,   series:[]
-           ,   columns: []
-           ,   category: []
-           ,   comments: []
-           ,   chart: null
-           ,   selectedMonth: 0
-           ,   totalAmmount: 0
-           ,   subTotalChart: null
-           ,   categoryChart: null
-           ,   csvFileName: 'ファイル未選択'
-           },
-           methods: {
-             onFileChange: function(e) {
-                if (e.target.files && e.target.files.length > 0) {
-                    this.csvFileName = e.target.files[0].name;
-                } else {
-                    this.csvFileName = 'ファイル未選択';
-                }
-             },
-             onPush_filter: async function() {
-                 var url = "/aggregate_filter"
-                 await axios.post(url,{
-                     year: document.getElementById("select_year").value
-                 }).then(x => {
-                     this.aggregates = x.data
-                     this.totalAmmount = x.data.totalAmmount
-                     this.refresh_comments()
-                 })
-             },
-             refresh_comments: async function(){
-                 var url = "/monthly_comments"
-                 await axios.post(url,{
-                     year: document.getElementById("select_year").value
-                 }).then(x => {
-                     this.comments = x.data
-                 })
-             },
-             select: function(obj) {
-                 // 選択月
-                 this.selectedMonth = obj.month
+        <script type="text/javascript" th:inline="none">
+        /*<![CDATA[*/
+            document.addEventListener('DOMContentLoaded', () => {
+                // Use server-serialized object injected to window.__INITIAL_DATA__ by Thymeleaf
+                const initialData = window.__INITIAL_DATA__ || {
+                    year: [],
+                    currentYear: null,
+                    monthSelect: [],
+                    currentMonth: null,
+                    categoryMaster: []
+                };
 
-                 // 各月のデータ
-                 this.series = []
-                 var array = []
-                 array.push("各月総支出")
-                 this.aggregates.items.forEach((item) =>{
-                     array.push(item.subTotalAmmount)
-                 })
-                 this.series.push(array)
+                var app = new Vue({
+                   el: '#app',
+                   data: {
+                       // Thymeleaf initial data
+                       yearSelect: initialData.year,
+                       currentYear: initialData.currentYear,
+                       monthSelect: initialData.monthSelect,
+                       currentMonth: initialData.currentMonth,
+                       categoryMaster: initialData.categoryMaster,
 
-                 // 分類ごとのデータ
-                 this.category = []
-                 let isFirst = true
-                 // 年間グラフ用に月をループ
-                 this.aggregates.items.forEach((item) =>{
-                    if(isFirst) {
-                        isFirst = false
-                        // 最初だけカテゴリ名を追加
-                        item.items.forEach((cat) => {
-                            this.category.push([cat.categoryName])
-                        })
-                    }
-                    let index = 0
-                    // カテゴリの種類毎にループ
-                    if(item.month < 13) {
-                        item.items.forEach((cat) =>{
-                            this.category[index].push(cat.categoryAmmount)
-                            index = index + 1
-                        })
-                    }
-                 })
+                       // SPA state
+                       currentView: 'main',
 
-                 // 内訳のデータ
-                 this.columns = []
-                 obj.items.forEach((item) => {
-                    var array = []
-                    array.push(item.categoryName)
-                    array.push(item.categoryAmmount)
-                    this.columns.push(array)
-                 })
-                 this.subTotalChart.load({columns: this.series})
-                 this.categoryChart.load({columns: this.category})
-                 this.chart.load({columns: this.columns})
-                 document.getElementById("donut-title").innerText = this.selectedMonth + '月 内訳'
-                 this.load_comment(this.selectedMonth)
-             },
-             load_comment: function(month) {
-                document.getElementById("txt_comment_id").value = ""
-                document.getElementById("txt_comment_note").value = ""
-                for(const item of this.comments) {
-                    if( item.month == month ) {
-                        document.getElementById("txt_comment_id").value = item.id
-                        document.getElementById("txt_comment_note").value = item.comment
-                    }
-                }
-             },
-             update_comment: async function() {
-                 if(this.selectedMonth == 0) {
-                    return
-                 }
-                 var url = "/update_comment"
-                 await axios.post(url,{
-                     id: document.getElementById("txt_comment_id").value
-                 ,   year: document.getElementById("select_year").value
-                 ,   month: this.selectedMonth
-                 ,   note: document.getElementById("txt_comment_note").value
-                 }).then(x => {
-                     this.comments = x.data
-                 })
-             },
-             create_chart: function() {
-                this.subTotalChart = bb.generate({
-                    bindto: '#subTotalChart'
-                ,   data: {
-                        type : 'bar'
-                    ,   x: "x"
-                    ,   columns: [
-                            ["x", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-                        ,   [".", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
-                        ]
-                    }
-                })
-                this.subTotalChart.hide(".")
-                this.subTotalChart.legend.hide(".")
-                this.categoryChart = bb.generate({
-                    bindto: '#categoryChart'
-                ,   data: {
-                        type : 'line'
-                    ,   x: "x"
-                    ,   columns: [
-                            ["x", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-                        ,   [".", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                        ,   this.category
-                        ]
-                    }
-                })
-                this.categoryChart.hide(".")
-                this.categoryChart.legend.hide(".")
-                this.chart = bb.generate({
-                    bindto: '#chart'
-                ,   data: {
-                        type : 'donut'
-                    ,   columns: this.columns
-                    }
-                })
-                document.getElementById("donut-title").innerText = '月を選択してください'
-             },
-             send_csv: async function(values) {
-                var url = "/register_csv"
-                await axios.post(url,{
-                    year: values[0]
-                ,   month: values[1]
-                ,   day: values[2]
-                ,   ammount: values[3]
-                ,   category_id: values[4]
-                ,   note: values[5]
-                }).then(x => {
-                    console.log(x.data)
-                })
-             },
-             onPush_loadCSV: function() {
-                let input = document.getElementById("input_file");
-                if (input.files.length === 0) {
-                    alert('CSVファイルを選択してください。');
-                    return;
-                }
-                let reader = new FileReader()
-                reader.onload = (e) => {
-                    let rows = e.target.result.split(/\r\n|\n/)
-                    var firstLine = true
-                    rows.forEach((item) => {
-                        if(firstLine) {
-                            firstLine = false
-                        }else{
-                            let values = item.split(/,/)
-                            if(values.length > 1) {
-                                this.send_csv(values)
+                       // Main view data
+                       aggregates: { items: [] },
+                       series:[],
+                       columns: [],
+                       category: [],
+                       comments: [],
+                       chart: null,
+                       selectedMonth: 0,
+                       totalAmmount: 0,
+                       subTotalChart: null,
+                       categoryChart: null,
+                       csvFileName: 'ファイル未選択',
+
+                       // Edit view data
+                       expenditures: [],
+                       edit_selectedId: null,
+
+                       // Category view data
+                       category_list: [],
+                       category_selectedId: null
+                   },
+                   methods: {
+                     // --- SPA Navigation ---
+                     setView: function(view) {
+                        this.currentView = view;
+                        this.$nextTick(() => {
+                            if (view === 'main') {
+                                if (!this.subTotalChart) this.main_create_chart();
+                                this.main_onPush_filter();
+                            }
+                            if (view === 'edit') {
+                                this.edit_onPush_filter();
+                            }
+                            if (view === 'category') {
+                                this.category_getUpdate();
+                            }
+                        });
+                     },
+
+                     // --- Main View Methods ---
+                     onFileChange: function(e) {
+                        if (e.target.files && e.target.files.length > 0) {
+                            this.csvFileName = e.target.files[0].name;
+                        } else {
+                            this.csvFileName = 'ファイル未選択';
+                        }
+                     },
+                     main_onPush_filter: async function() {
+                         var url = "/aggregate_filter";
+                         var year = document.getElementById("main_select_year").value;
+                         await axios.post(url,{ year: year }).then(x => {
+                             this.aggregates = x.data;
+                             this.totalAmmount = x.data.totalAmmount;
+                             this.main_refresh_comments(year);
+                         });
+                     },
+                     main_refresh_comments: async function(year){
+                         var url = "/monthly_comments";
+                         await axios.post(url,{ year: year }).then(x => {
+                             this.comments = x.data;
+                         });
+                     },
+                     main_select: function(obj) {
+                         this.selectedMonth = obj.month;
+                         this.series = [];
+                         var array = ["各月総支出"];
+                         this.aggregates.items.forEach(item => array.push(item.subTotalAmmount));
+                         this.series.push(array);
+
+                         this.category = [];
+                         let isFirst = true;
+                         this.aggregates.items.forEach(item =>{
+                            if(isFirst) {
+                                isFirst = false;
+                                item.items.forEach(cat => this.category.push([cat.categoryName]));
+                            }
+                            if(item.month < 13) {
+                                item.items.forEach((cat, index) => this.category[index].push(cat.categoryAmmount));
+                            }
+                         });
+
+                         this.columns = [];
+                         obj.items.forEach(item => {
+                            this.columns.push([item.categoryName, item.categoryAmmount]);
+                         });
+
+                         if(this.subTotalChart) this.subTotalChart.load({columns: this.series});
+                         if(this.categoryChart) this.categoryChart.load({columns: this.category});
+                         if(this.chart) this.chart.load({columns: this.columns});
+
+                         document.getElementById("donut-title").innerText = this.selectedMonth + '月 内訳';
+                         this.main_load_comment(this.selectedMonth);
+                     },
+                     main_load_comment: function(month) {
+                        document.getElementById("main_txt_comment_id").value = "";
+                        document.getElementById("main_txt_comment_note").value = "";
+                        for(const item of this.comments) {
+                            if( item.month == month ) {
+                                document.getElementById("main_txt_comment_id").value = item.id;
+                                document.getElementById("main_txt_comment_note").value = item.comment;
                             }
                         }
-                     })
-                    alert('CSVの読み込みが完了しました。画面を更新して確認してください。');
-                }
-                reader.readAsText(input.files[0])
-             }
-           },
-           beforeMount() {
-               this.onPush_filter()
-           },
-           mounted() {
-               this.create_chart()
-           }
-         })
-         </script>
+                     },
+                     main_update_comment: async function() {
+                         if(this.selectedMonth == 0) return;
+                         var url = "/update_comment";
+                         await axios.post(url,{
+                             id: document.getElementById("main_txt_comment_id").value,
+                             year: document.getElementById("main_select_year").value,
+                             month: this.selectedMonth,
+                             note: document.getElementById("main_txt_comment_note").value
+                         }).then(x => { this.comments = x.data; });
+                     },
+                     main_create_chart: function() {
+                        if (this.subTotalChart) this.subTotalChart.destroy();
+                        this.subTotalChart = bb.generate({ bindto: '#subTotalChart', data: { type : 'bar', x: "x", columns: [["x", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], [".", 0,0,0,0,0,0,0,0,0,0,0,0]] } });
+                        this.subTotalChart.hide("."); this.subTotalChart.legend.hide(".");
+                        if (this.categoryChart) this.categoryChart.destroy();
+                        this.categoryChart = bb.generate({ bindto: '#categoryChart', data: { type : 'line', x: "x", columns: [["x", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], [".", 0,0,0,0,0,0,0,0,0,0,0,0]] } });
+                        this.categoryChart.hide("."); this.categoryChart.legend.hide(".");
+                        if (this.chart) this.chart.destroy();
+                        this.chart = bb.generate({ bindto: '#chart', data: { type : 'donut', columns: [] } });
+                        document.getElementById("donut-title").innerText = '月を選択してください';
+                     },
+                     main_send_csv: async function(values) {
+                        var url = "/register_csv";
+                        await axios.post(url,{ year: values[0], month: values[1], day: values[2], ammount: values[3], category_id: values[4], note: values[5] }).then(x => { console.log(x.data) });
+                     },
+                     main_onPush_loadCSV: function() {
+                        let input = document.getElementById("main_input_file");
+                        if (input.files.length === 0) { alert('CSVファイルを選択してください。'); return; }
+                        let reader = new FileReader();
+                        reader.onload = (e) => {
+                            let rows = e.target.result.split(/\r\n|\n/);
+                            rows.forEach((item, index) => {
+                                if(index > 0) { 
+                                    let values = item.split(/,/);
+                                    if(values.length > 1) { this.main_send_csv(values); }
+                                }
+                             });
+                            alert('CSVの読み込みが完了しました。支出編集画面を更新して確認してください。');
+                        };
+                        reader.readAsText(input.files[0]);
+                     },
+
+                     // --- Edit View Methods ---
+                    edit_onPush_filter: async function() {
+                        var url = "/expenditure_filter";
+                        await axios.post(url,{
+                            year: document.getElementById("edit_select_year").value,
+                            month: document.getElementById("edit_select_month").value
+                        }).then(x => { this.expenditures = x.data; });
+                    },
+                    edit_select: function(obj) {
+                        this.edit_selectedId = obj.id;
+                        document.getElementById("edit_txt_id").value = obj.id;
+                        document.getElementById("edit_date_register").value = obj.date;
+                        document.getElementById("edit_select_category").value = obj.category_id;
+                        document.getElementById("edit_txt_ammount").value = obj.ammount;
+                        document.getElementById("edit_txt_note").value = obj.note;
+                    },
+                    edit_onPush_new: function() {
+                        this.edit_selectedId = null;
+                        document.getElementById("edit_txt_id").value = "";
+                        document.getElementById("edit_date_register").value = "";
+                        document.getElementById("edit_select_category").selectedIndex = 0;
+                        document.getElementById("edit_txt_ammount").value = "";
+                        document.getElementById("edit_txt_note").value = "";
+                    },
+                    edit_onPush_submit: async function() {
+                        var url = "expenditure_update";
+                        await axios.post(url,{
+                            id: document.getElementById("edit_txt_id").value,
+                            date: document.getElementById("edit_date_register").value,
+                            category: document.getElementById("edit_select_category").value,
+                            ammount: document.getElementById("edit_txt_ammount").value,
+                            note: document.getElementById("edit_txt_note").value
+                        }).then(x => {
+                            this.edit_onPush_filter();
+                            this.edit_onPush_new();
+                        });
+                    },
+                    edit_row_class: function(item) {
+                        const classes = [];
+                        if (item.category_name === '食費') {
+                            classes.push('has-background-warning-light');
+                        }
+                        if (item.category_name === '趣味') {
+                            classes.push('has-background-info-light');
+                        }
+                        if (item.id === this.edit_selectedId) {
+                            classes.push('is-selected');
+                        }
+                        return classes;
+                    },
+
+                    // --- Category View Methods ---
+                    category_getUpdate: async function() {
+                        var url = "categories";
+                        await axios.get(url).then(x => { this.category_list = x.data; }).catch(err => {});
+                    },
+                    category_onPush_New: function() {
+                        this.category_selectedId = null;
+                        document.getElementById("cat_txt_enable").checked = true;
+                        document.getElementById("cat_txt_id").value = "";
+                        document.getElementById("cat_txt_name").value = "";
+                        document.getElementById("cat_select_type").selectedIndex = 0;
+                        document.getElementById("cat_txt_sort_order").value = "";
+                        document.getElementById("cat_txt_note").value = "";
+                        document.getElementById("cat_txt_create_at").value = "";
+                        document.getElementById("cat_txt_update_at").value = "";
+                    },
+                    category_onPush_Submit: async function() {
+                        var url = "category_update";
+                        await axios.post(url,{
+                            is_enable: document.getElementById("cat_txt_enable").checked,
+                            id: document.getElementById("cat_txt_id").value,
+                            type: document.getElementById("cat_select_type").value,
+                            name: document.getElementById("cat_txt_name").value,
+                            note: document.getElementById("cat_txt_note").value,
+                            sort_order: document.getElementById("cat_txt_sort_order").value
+                        }).then(x => {
+                            this.category_getUpdate();
+                            this.category_onPush_New();
+                        });
+                    },
+                    category_onClick_Table: function(obj) {
+                        this.category_selectedId = obj.id;
+                        document.getElementById("cat_txt_id").value = obj.id;
+                        const dataValue = obj.type;
+                        const selectBox = document.getElementById("cat_select_type");
+                        for(const option of selectBox.options) {
+                            if(option.text == dataValue) option.selected = true;
+                        }
+                        document.getElementById("cat_txt_name").value = obj.name;
+                        document.getElementById("cat_txt_note").value = obj.note;
+                        document.getElementById("cat_txt_sort_order").value = obj.sortOrderNo;
+                        document.getElementById("cat_txt_enable").checked = (obj.enable == true);
+                        document.getElementById("cat_txt_create_at").value = obj.createAt;
+                        document.getElementById("cat_txt_update_at").value = obj.updateAt;
+                    }
+                   },
+                   beforeMount() {
+                       this.setView('main');
+                   }
+                });
+            });
+        /*]]>*/
+        </script>
     </body>
 </html>
