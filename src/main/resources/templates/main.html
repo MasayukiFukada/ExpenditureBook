@@ -67,7 +67,7 @@
                                         <div class="level-item has-text-centered">
                                             <div>
                                                 <p class="heading">年間合計</p>
-                                                <p class="title">{{totalAmmount}} 円</p>
+                                                <p class="title has-text-right">{{ formatCurrency(totalAmmount) }} 円</p>
                                             </div>
                                         </div>
                                         <div class="level-item has-text-centered">
@@ -137,8 +137,8 @@
                                 <tbody>
                                     <tr @click="main_select(item)" v-for="(item,key) in aggregates.items" :class="{ 'is-selected': item.month == selectedMonth }">
                                         <td>{{item.month}}</td>
-                                        <td class="has-background-primary-light">{{item.subTotalAmmount}}</td>
-                                        <td v-for="(c_item,c_key) in item.items">{{c_item.categoryAmmount}}</td>
+                                        <td class="has-background-primary-light has-text-right">{{ formatCurrency(item.subTotalAmmount) }}</td>
+                                        <td v-for="(c_item,c_key) in item.items" class="has-text-right">{{ formatCurrency(c_item.categoryAmmount) }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -242,7 +242,7 @@
                                     <tr @click="edit_select(item)" v-for="(item,key) in expenditures"
                                         :class="edit_row_class(item)">
                                         <td>{{item.id}}</td><td>{{item.date}}</td><td>{{item.category_name}}</td>
-                                        <td>{{item.ammount}}</td><td>{{item.note}}</td>
+                                        <td class="has-text-right">{{ formatCurrency(item.ammount) }}</td><td>{{item.note}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -403,12 +403,17 @@
                        category_selectedId: null
                    },
                    methods: {
+                     formatCurrency(value) {
+                        if (value == null) return '';
+                        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                     },
+
                      // --- SPA Navigation ---
                      setView: function(view) {
                         this.currentView = view;
                         this.$nextTick(() => {
                             if (view === 'main') {
-                                if (!this.subTotalChart) this.main_create_chart();
+                                this.main_create_chart();
                                 this.main_onPush_filter();
                             }
                             if (view === 'edit') {
