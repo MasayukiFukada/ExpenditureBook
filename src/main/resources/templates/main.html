@@ -226,6 +226,9 @@
                                             <button class="button is-success" @click="edit_onPush_submit()">更新 / 登録</button>
                                         </div>
                                         <div class="control">
+                                            <button class="button is-danger" @click="edit_onPush_delete()" :disabled="edit_selectedId == null">削除</button>
+                                        </div>
+                                        <div class="control">
                                             <button class="button is-light" @click="edit_onPush_new()">フォームクリア</button>
                                         </div>
                                     </div>
@@ -567,6 +570,21 @@
                             this.edit_onPush_filter();
                             this.edit_onPush_new();
                         });
+                    },
+                    edit_onPush_delete: async function() {
+                        if (this.edit_selectedId == null) {
+                            alert('削除する項目を選択してください。');
+                            return;
+                        }
+                        if (confirm('選択した項目を削除しますか？')) {
+                            var url = "expenditure_delete";
+                            await axios.post(url, {
+                                id: this.edit_selectedId
+                            }).then(x => {
+                                this.edit_onPush_filter();
+                                this.edit_onPush_new();
+                            });
+                        }
                     },
                     edit_row_class: function(item) {
                         const classes = [];

@@ -67,6 +67,17 @@ public class ExpenditureService {
     }
 
     @Transactional
+    public boolean delete(String id) {
+        try {
+            repository.deleteById(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    @Transactional
     public boolean delete(Expenditure expenditure) {
         try {
             repository.delete(convertModelToEntity(expenditure));

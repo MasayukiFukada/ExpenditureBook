@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,7 +54,10 @@ public class EditViewController {
     }
 
     @PostMapping("/expenditure_update")
-    public String appendItem(@RequestBody Map<String, String> body) {
+	@ResponseBody
+    public ResponseEntity<Map<String, Object>> appendItem(@RequestBody Map<String, String> body) {
+		Map<String, Object> response = new java.util.HashMap<>();
+        boolean isSuccess = false;
         // ちゃんと日付が入っていること
         if (body.get("date") != "") {
             Expenditure model = new Expenditure();
@@ -73,9 +77,23 @@ public class EditViewController {
                 model.setCategory(foundCategory);
                 model.setAmmount(new Money(Integer.valueOf(body.get("ammount"))));
                 model.setNote(new ItemNote(body.get("note")));
-                expenditureService.insert(model);
+                if (getID.equals("")) {
+                    isSuccess = expenditureService.insert(model);
+                } else {
+                    isSuccess = expenditureService.update(model);
+                }
             }
         }
-        return "edit.html";
+		response.put("status", isSuccess);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/expenditure_delete")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deleteItem(@RequestBody Map<String, String> body) {
+        Map<String, Object> response = new java.util.HashMap<>();
+        boolean isSuccess = expenditureService.delete(body.get("id"));
+        response.put("status", isSuccess);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
