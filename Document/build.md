@@ -16,7 +16,11 @@
     * `mise ls` で現在インストール済みと使用しているバージョンを確認
     * `mise ls-remote java` で java のインストール可能なバージョンを表示
 
+* `gradlew bootRun` で起動
+  * ポートは application.properties で設定する
+
 * Eclipse を使用
+  * ◆◆◆古い。gradlewを使用するように変更した◆◆◆
   * [ファイル] - [ファイルシステムからプロジェクトを開く] でプロジェクトルート( README.md を含む )を開くこと
     * src を開くとプロジェクトがうまく読み込まれないかも
   * Gradle の Java ホームを設定するのが大事 ( 上記の mise 管理も影響 )
@@ -37,6 +41,7 @@
   * Eclipse からは「Boot ダッシュボード」でサーバーを立ち上げればＯＫ
 
 * `docker compose up` で DB 用のコンテナが立ち上がる
+  * テスト用(本番 DB は別途動かす)
   * コンテナにファイルを送信する `docker cp <送るファイルのパス> expenditure-db:<送り先のパス>`
     * コマンドによってコンテナの名前指定の方法( db や expenditure-db )が違うことがあるので注意
   * コンテナの中で作業がしたい場合は `docker compose exec db /bin/bash` で DB コンテナに繋がる
@@ -67,4 +72,3 @@
 * フックを利用して何かを行いたい場合、フックのパスを Git で管理できる別の場所に移すこともできる
 * git config --local core.hooksPath .githooks
   * [参考](https://qiita.com/MasaoSasaki/items/fb741b54d807a49c2817)
-
