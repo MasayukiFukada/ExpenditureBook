@@ -12,11 +12,13 @@ import com.example.demo.model.SubAggregate;
 import com.example.demo.model.TotalAggregate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AggregateService {
+
     private TotalAggregate templateTotalAggregate = new TotalAggregate();
 
     private Categories categories;
@@ -53,45 +55,93 @@ public class AggregateService {
     public JSONTotalAggregate convertModelToJSONModel(TotalAggregate model) {
         JSONTotalAggregate totalAggregate = new JSONTotalAggregate();
         totalAggregate.setTotalAmmount(model.getTotalAmmount().getValue());
-        List<JSONSubAggregate> subItems = new ArrayList<JSONSubAggregate>();
-        for (SubAggregate sub : model.getItems()) {
-            JSONSubAggregate subItem = new JSONSubAggregate();
-            subItem.setMonth(sub.getMonth().getValue());
-            subItem.setSubTotalAmmount(sub.getSubTotalAmmount().getValue());
-            for (AggregateItem item : sub.getItems()) {
-                JSONAggregateItem aggregateItem = convertModelToJSONModel(item);
-                subItem.getItems().add(aggregateItem);
-            }
-            subItems.add(subItem);
-        }
-        // 集計用の特殊データ
-        JSONSubAggregate subSumItem = new JSONSubAggregate();
-        subSumItem.setMonth(13);
-        subSumItem.setSubTotalAmmount(model.getTotalAmmount().getValue());
-        for (Category category : this.categories.getItems()) {
-            JSONAggregateItem aggregateItem = new JSONAggregateItem();
-            aggregateItem.setCategoryId(category.getId().toString());
-            aggregateItem.setCategoryName(category.getName());
-            for (JSONSubAggregate calcSubItem : subItems) {
-                boolean isFound = false;
-                for (JSONAggregateItem calcAggregateItem : calcSubItem.getItems()) {
-                    if (calcAggregateItem.getCategoryId().equals(category.getId().getId())) {
-                        isFound = true;
-                        int currentValue = aggregateItem.getCategoryAmmount();
-                        currentValue = currentValue + calcAggregateItem.getCategoryAmmount();
-                        aggregateItem.setCategoryAmmount(currentValue);
-                    }
-                }
-                if (!isFound) {
-                    aggregateItem.setCategoryAmmount(0);
-                }
-            }
-            subSumItem.getItems().add(aggregateItem);
-        }
+
+        // SubAggregateをJSONSubAggregateに変換
+        List<JSONSubAggregate> subItems = model
+            .getItems()
+            .stream()
+            .map(this::convertSubAggregateToJSON)
+            .collect(Collectors.toList());
+
+        // 集計用の特殊データ（13月）を作成
+        JSONSubAggregate subSumItem = createMonthlyAggregateItem(
+            subItems,
+            model.getTotalAmmount().getValue()
+        );
         subItems.add(subSumItem);
 
         totalAggregate.setItems(subItems);
         return totalAggregate;
+    }
+
+    /**
+     * SubAggregateをJSONSubAggregateに変換
+     *
+     * @param sub 変換元データ
+     * @return 変換されたデータ
+     */
+    private JSONSubAggregate convertSubAggregateToJSON(SubAggregate sub) {
+        JSONSubAggregate subItem = new JSONSubAggregate();
+        subItem.setMonth(sub.getMonth().getValue());
+        subItem.setSubTotalAmmount(sub.getSubTotalAmmount().getValue());
+        List<JSONAggregateItem> items = sub
+            .getItems()
+            .stream()
+            .map(this::convertModelToJSONModel)
+            .collect(Collectors.toList());
+        subItem.setItems(items);
+        return subItem;
+    }
+
+    /**
+     * 月別集計データ（13月）を作成
+     *
+     * @param subItems 月別データ
+     * @param totalAmount 総額
+     * @return 月別集計データ
+     */
+    private JSONSubAggregate createMonthlyAggregateItem(
+        List<JSONSubAggregate> subItems,
+        int totalAmount
+    ) {
+        JSONSubAggregate subSumItem = new JSONSubAggregate();
+        subSumItem.setMonth(13);
+        subSumItem.setSubTotalAmmount(totalAmount);
+
+        List<JSONAggregateItem> aggregateItems = this.categories.getItems()
+            .stream()
+            .map(category -> calculateCategoryTotal(category, subItems))
+            .collect(Collectors.toList());
+        subSumItem.setItems(aggregateItems);
+        return subSumItem;
+    }
+
+    /**
+     * カテゴリごとの合計金額を計算
+     *
+     * @param category カテゴリ
+     * @param subItems 月別データ
+     * @return 計算されたカテゴリ集計アイテム
+     */
+    private JSONAggregateItem calculateCategoryTotal(
+        Category category,
+        List<JSONSubAggregate> subItems
+    ) {
+        JSONAggregateItem aggregateItem = new JSONAggregateItem();
+        aggregateItem.setCategoryId(category.getId().toString());
+        aggregateItem.setCategoryName(category.getName());
+
+        int totalAmount = subItems
+            .stream()
+            .flatMap(sub -> sub.getItems().stream())
+            .filter(item ->
+                item.getCategoryId().equals(category.getId().getId())
+            )
+            .mapToInt(JSONAggregateItem::getCategoryAmmount)
+            .sum();
+
+        aggregateItem.setCategoryAmmount(totalAmount);
+        return aggregateItem;
     }
 
     public JSONAggregateItem convertModelToJSONModel(AggregateItem model) {
