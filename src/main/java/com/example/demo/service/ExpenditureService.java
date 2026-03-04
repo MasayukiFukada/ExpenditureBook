@@ -1,13 +1,5 @@
 package com.example.demo.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.example.demo.entity.ExpenditureEntity;
 import com.example.demo.model.Expenditure;
 import com.example.demo.model.Expenditures;
@@ -17,10 +9,17 @@ import com.example.demo.primitive.ID;
 import com.example.demo.primitive.ItemNote;
 import com.example.demo.primitive.Money;
 import com.example.demo.repository.ExpenditureRepository;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
 public class ExpenditureService {
+
     @Autowired
     CategoryService categoryService;
 
@@ -28,19 +27,29 @@ public class ExpenditureService {
     ExpenditureRepository repository;
 
     public Expenditures retrieve(int year) {
-        List<ExpenditureEntity> entities = repository.findAllByOrderByIdDesc();
+        List<ExpenditureEntity> entities =
+            repository.findAllByOrderByDateDescCategoryIdDesc();
         Expenditures newExpenditures = new Expenditures(
-                entities.stream().filter(i -> i.getDate().getYear() == year).map(i -> convertEntityToModel(i))
-                        .collect(Collectors.toList()));
+            entities
+                .stream()
+                .filter(i -> i.getDate().getYear() == year)
+                .map(i -> convertEntityToModel(i))
+                .collect(Collectors.toList())
+        );
         return newExpenditures;
     }
 
     public Expenditures retrieve(int year, int month) {
-        List<ExpenditureEntity> entities = repository.findAllByOrderByIdDesc();
+        List<ExpenditureEntity> entities =
+            repository.findAllByOrderByDateDescCategoryIdDesc();
         Expenditures newExpenditures = new Expenditures(
-                entities.stream().filter(i -> i.getDate().getYear() == year)
-                        .filter(i -> i.getDate().getMonthValue() == month).map(i -> convertEntityToModel(i))
-                        .collect(Collectors.toList()));
+            entities
+                .stream()
+                .filter(i -> i.getDate().getYear() == year)
+                .filter(i -> i.getDate().getMonthValue() == month)
+                .map(i -> convertEntityToModel(i))
+                .collect(Collectors.toList())
+        );
         return newExpenditures;
     }
 
@@ -93,7 +102,9 @@ public class ExpenditureService {
         item.setId(new ID(entity.getId()));
         item.setAmmount(new Money(entity.getAmmount()));
         item.setDate(new ExpenditureDate(entity.getDate()));
-        item.setCategory(categoryService.getCategoryById(entity.getCategory_id()));
+        item.setCategory(
+            categoryService.getCategoryById(entity.getCategory_id())
+        );
         item.setNote(new ItemNote(entity.getNote()));
         item.setCreate_at(entity.getCreate_at());
         item.setUpdate_at(entity.getUpdate_at());
