@@ -56,8 +56,6 @@ public class MainViewController {
 
     @GetMapping(path = "/")
     public String mainView(Model model) {
-        aggregateService.Initialize(categoryService);
-
         LocalDate today = LocalDate.now();
         List<Integer> years = IntStream.rangeClosed(2024, today.getYear())
             .map(i -> -i)

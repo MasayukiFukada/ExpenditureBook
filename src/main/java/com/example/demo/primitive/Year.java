@@ -1,9 +1,16 @@
 package com.example.demo.primitive;
 
-import lombok.Getter;
+import java.io.Serializable;
 
-public class Year {
-    @Getter
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+public class Year implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int value;
 
     public Year(int arg) {

@@ -14,30 +14,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AggregateService {
 
-    private TotalAggregate templateTotalAggregate = new TotalAggregate();
-
-    private Categories categories;
-
     @Autowired
     ExpenditureService expenditureService;
 
-    boolean isInitialized = false;
+    @Autowired
+    CategoryService categoryService;
 
-    public void Initialize(CategoryService service) {
-        if (!isInitialized) {
-            isInitialized = true;
-            this.categories = service.getAll();
-            this.templateTotalAggregate.Initialize(this.categories);
-        }
-    }
-
+    @Cacheable(value = "aggregates", key = "#year")
     public TotalAggregate getAnnualy(int year) {
-        TotalAggregate copy = templateTotalAggregate.copy();
+        TotalAggregate copy = new TotalAggregate();
+        copy.Initialize(categoryService.getAll());
+        
         Expenditures source = expenditureService.retrieve(year);
         for (Expenditure item : source.getItems()) {
             copy.append(item);
@@ -108,7 +101,7 @@ public class AggregateService {
         subSumItem.setMonth(13);
         subSumItem.setSubTotalAmmount(totalAmount);
 
-        List<JSONAggregateItem> aggregateItems = this.categories.getItems()
+        List<JSONAggregateItem> aggregateItems = this.categoryService.getAll().getItems()
             .stream()
             .map(category -> calculateCategoryTotal(category, subItems))
             .collect(Collectors.toList());

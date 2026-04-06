@@ -11,3 +11,12 @@ services:
         volumes:
             - ./my.cnf:/etc/mysql/conf.d/my.cnf
 
+    redis:
+        image: redis:latest
+        container_name: expenditure-redis
+        ports:
+            - "6379:6379"
+        environment:
+            TZ: "Asia/Tokyo"
+        command: redis-server --appendonly yes
+

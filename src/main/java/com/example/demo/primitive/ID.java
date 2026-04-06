@@ -6,18 +6,18 @@ import java.util.UUID;
 import com.fasterxml.uuid.Generators;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class ID implements Serializable {
     // Serializable で必須
     private static final long serialVersionUID = 1L;
 
-    @Getter
     private String id = "";
-    @Getter
     private boolean isSet;
-
-    public ID() {
-    }
 
     public ID(String set) {
         this.id = set;

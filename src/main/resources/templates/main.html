@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <script src="/chart/d3.js"  charset="utf-8"></script>
-        <script src="/chart/billboard.js"></script>
+        <script th:src="@{/chart/d3.js}"  charset="utf-8"></script>
+        <script th:src="@{/chart/billboard.js}"></script>
         <link th:href="@{/chart/insight.css}" rel="stylesheet" />
         <script src="https://unpkg.com/vue@2.7.16"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -371,6 +371,26 @@
                     categoryMaster: []
                 };
 
+                // Configure Axios Base URL based on Thymeleaf Context Path
+                // Note: We need to get the context path from Thymeleaf.
+                // However, inside th:inline="none" block, Thymeleaf expressions are ignored.
+                // So we rely on a global variable or assume we can inject it before.
+                // Best approach: Define contextPath in the block above.
+            });
+        /*]]>*/
+        </script>
+        <script th:inline="javascript">
+        /*<![CDATA[*/
+            // Setup Axios Base URL using Thymeleaf context path
+            axios.defaults.baseURL = /*[[@{/}]]*/ '/';
+        /*]]>*/
+        </script>
+        
+        <script type="text/javascript" th:inline="none">
+        /*<![CDATA[*/
+            document.addEventListener('DOMContentLoaded', () => {
+                 const initialData = window.__INITIAL_DATA__ || {};
+
                 var app = new Vue({
                    el: '#app',
                    data: {
@@ -437,7 +457,7 @@
                         }
                      },
                      main_onPush_filter: async function() {
-                         var url = "/aggregate_filter";
+                         var url = "aggregate_filter";
                          var year = document.getElementById("main_select_year").value;
                          await axios.post(url,{ year: year }).then(x => {
                              this.aggregates = x.data;
@@ -446,7 +466,7 @@
                          });
                      },
                      main_refresh_comments: async function(year){
-                         var url = "/monthly_comments";
+                         var url = "monthly_comments";
                          await axios.post(url,{ year: year }).then(x => {
                              this.comments = x.data;
                          });
@@ -494,7 +514,7 @@
                      },
                      main_update_comment: async function() {
                          if(this.selectedMonth == 0) return;
-                         var url = "/update_comment";
+                         var url = "update_comment";
                          await axios.post(url,{
                              id: document.getElementById("main_txt_comment_id").value,
                              year: document.getElementById("main_select_year").value,
@@ -514,7 +534,7 @@
                         document.getElementById("donut-title").innerText = '月を選択してください';
                      },
                      main_send_csv: async function(values) {
-                        var url = "/register_csv";
+                        var url = "register_csv";
                         await axios.post(url,{ year: values[0], month: values[1], day: values[2], ammount: values[3], category_id: values[4], note: values[5] }).then(x => { console.log(x.data) });
                      },
                      main_onPush_loadCSV: function() {
@@ -536,7 +556,7 @@
 
                      // --- Edit View Methods ---
                     edit_onPush_filter: async function() {
-                        var url = "/expenditure_filter";
+                        var url = "expenditure_filter";
                         await axios.post(url,{
                             year: document.getElementById("edit_select_year").value,
                             month: document.getElementById("edit_select_month").value
