@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.StringJoiner;
 
@@ -9,11 +10,14 @@ import com.example.demo.primitive.ItemNote;
 import com.example.demo.primitive.Money;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class Expenditure {
+@NoArgsConstructor
+public class Expenditure implements Serializable {
+    private static final long serialVersionUID = 1L;
     private ID id = new ID();
     private ExpenditureDate date;
     private Money ammount;

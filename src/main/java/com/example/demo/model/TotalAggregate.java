@@ -8,20 +8,19 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class TotalAggregate implements Serializable {
     // Serializable で必須
     private static final long serialVersionUID = 1L;
 
     private List<SubAggregate> items = new ArrayList<SubAggregate>();
     private Money totalAmmount = new Money(0);
-
-    public TotalAggregate() {
-    }
 
     public void Initialize(Categories categories) {
         for (int i = 1; i <= 12; i++) {

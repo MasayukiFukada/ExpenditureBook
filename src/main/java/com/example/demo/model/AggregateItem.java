@@ -5,10 +5,12 @@ import java.io.Serializable;
 import com.example.demo.primitive.Money;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class AggregateItem implements Serializable {
     // Serializable で必須
     private static final long serialVersionUID = 1L;

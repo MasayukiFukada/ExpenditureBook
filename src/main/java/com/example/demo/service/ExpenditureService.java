@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,22 +41,24 @@ public class ExpenditureService {
         );
         return newExpenditures;
     }
-
-    public Expenditures retrieve(int year, int month) {
-        List<ExpenditureEntity> entities =
-            repository.findAllByOrderByDateDescCategoryIdDesc();
-        Expenditures newExpenditures = new Expenditures(
-            entities
-                .stream()
-                .filter(i -> i.getDate().getYear() == year)
-                .filter(i -> i.getDate().getMonthValue() == month)
-                .map(i -> convertEntityToModel(i))
-                .collect(Collectors.toList())
-        );
-        return newExpenditures;
-    }
+@Cacheable(value = "expenditures", key = "'month:' + #year + '-' + #month")
+public Expenditures retrieve(int year, int month) {
+    List<ExpenditureEntity> entities = repository.findByYearAndMonth(year, month);
+    Expenditures newExpenditures = new Expenditures(
+        entities
+            .stream()
+            .map(i -> convertEntityToModel(i))
+            .collect(Collectors.toList())
+    );
+    return newExpenditures;
+}
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "expenditures", key = "'year:' + #expenditure.date.date.year"),
+            @CacheEvict(value = "expenditures", key = "'month:' + #expenditure.date.date.year + '-' + #expenditure.date.date.monthValue"),
+            @CacheEvict(value = "aggregates", allEntries = true)
+    })
     public boolean insert(Expenditure expenditure) {
         try {
             repository.save(convertModelToEntity(expenditure));
@@ -65,6 +70,11 @@ public class ExpenditureService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "expenditures", key = "'year:' + #expenditure.date.date.year"),
+            @CacheEvict(value = "expenditures", key = "'month:' + #expenditure.date.date.year + '-' + #expenditure.date.date.monthValue"),
+            @CacheEvict(value = "aggregates", allEntries = true)
+    })
     public boolean update(Expenditure expenditure) {
         try {
             repository.save(convertModelToEntity(expenditure));
@@ -76,6 +86,7 @@ public class ExpenditureService {
     }
 
     @Transactional
+    @CacheEvict(value = "expenditures", allEntries = true)
     public boolean delete(String id) {
         try {
             repository.deleteById(id);
@@ -87,6 +98,11 @@ public class ExpenditureService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "expenditures", key = "'year:' + #expenditure.date.date.year"),
+            @CacheEvict(value = "expenditures", key = "'month:' + #expenditure.date.date.year + '-' + #expenditure.date.date.monthValue"),
+            @CacheEvict(value = "aggregates", allEntries = true)
+    })
     public boolean delete(Expenditure expenditure) {
         try {
             repository.delete(convertModelToEntity(expenditure));

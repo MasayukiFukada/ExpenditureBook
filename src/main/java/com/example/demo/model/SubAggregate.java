@@ -7,10 +7,12 @@ import com.example.demo.primitive.Money;
 import com.example.demo.primitive.Month;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class SubAggregate implements Serializable {
     // Serializable で必須
     private static final long serialVersionUID = 1L;

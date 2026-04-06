@@ -15,4 +15,14 @@ public interface ExpenditureRepository
         "SELECT e FROM ExpenditureEntity e ORDER BY e.date DESC, e.category_id DESC"
     )
     List<ExpenditureEntity> findAllByOrderByDateDescCategoryIdDesc();
+
+    @Query(
+        "SELECT e FROM ExpenditureEntity e WHERE YEAR(e.date) = :year ORDER BY e.date DESC, e.category_id DESC"
+    )
+    List<ExpenditureEntity> findByYear(int year);
+
+    @Query(
+        "SELECT e FROM ExpenditureEntity e WHERE YEAR(e.date) = :year AND MONTH(e.date) = :month ORDER BY e.date DESC, e.category_id DESC"
+    )
+    List<ExpenditureEntity> findByYearAndMonth(int year, int month);
 }

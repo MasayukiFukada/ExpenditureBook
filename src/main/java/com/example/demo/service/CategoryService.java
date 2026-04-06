@@ -6,6 +6,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +54,11 @@ public class CategoryService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "categories", allEntries = true),
+            @CacheEvict(value = "expenditures", allEntries = true),
+            @CacheEvict(value = "aggregates", allEntries = true)
+    })
     public Boolean insert(Category category) {
         try {
             repository.save(convertModelToEntity(category));
@@ -62,6 +70,11 @@ public class CategoryService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "categories", allEntries = true),
+            @CacheEvict(value = "expenditures", allEntries = true),
+            @CacheEvict(value = "aggregates", allEntries = true)
+    })
     public boolean update(Category category) {
         try {
             repository.save(convertModelToEntity(category));
@@ -73,6 +86,11 @@ public class CategoryService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "categories", allEntries = true),
+            @CacheEvict(value = "expenditures", allEntries = true),
+            @CacheEvict(value = "aggregates", allEntries = true)
+    })
     public boolean delete(Category category) {
         try {
             repository.delete(convertModelToEntity(category));
