@@ -1,38 +1,45 @@
-HELP.md
-.gradle
-build/
-release/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
+# testing
+/coverage
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
+# next.js
+/.next/
+/out/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# production
+/build
 
-### VS Code ###
-.vscode/
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# database (local development data)
+# ユーザーの意向により、実データである db/db.json は除外
+db/db.json
+
+# old system files (user requested to exclude)
+/old/
+
+# build artifacts
+*.jar
+*.csv
+db/migrated_data.json
