@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+build
+.dockerignore
+Dockerfile
+compose.yaml
+.git
+.gitignore
+README.md
+PLAN.md
+old
+*.csv
+*.jar

@@ -1,3 +1,0 @@
-#!/bin/sh
-
-lizard -l java -C 7 -T nloc=27 -s cyclomatic_complexity -a 4 --exclude "./src/test/*" --csv > lizard.csv
