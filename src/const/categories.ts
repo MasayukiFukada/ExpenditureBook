@@ -12,7 +12,8 @@ export const CATEGORIES = [
   "被覆",
   "保険",
   "特別",
-  "雑費"
+  "雑費",
+  "未設定"
 ] as const;
 
 export type Category = typeof CATEGORIES[number];
