@@ -51,7 +51,7 @@ export default async function Home({
   const totalYearlyAmount = yearlyData.reduce((sum, d) => sum + calculateTotal(d), 0)
 
   return (
-    <div className="container mx-auto p-4 max-w-6xl">
+    <div className="container mx-auto p-4 max-w-[1400px]">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold">出費管理システム</h1>
@@ -81,13 +81,13 @@ export default async function Home({
             </div>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-card p-6 rounded-xl border shadow-sm">
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            <div className="xl:col-span-3 bg-card p-6 rounded-xl border shadow-sm">
               <h3 className="text-lg font-semibold mb-4">月別支出推移</h3>
               <YearlyTrendChart data={trendData} />
             </div>
             
-            <div className="bg-card p-6 rounded-xl border shadow-sm overflow-y-auto max-h-[380px]">
+            <div className="bg-card p-6 rounded-xl border shadow-sm overflow-y-auto max-h-[400px]">
               <h3 className="text-lg font-semibold mb-4">月を選択</h3>
               <div className="grid grid-cols-2 gap-3">
                 {yearlyData.map(d => (
@@ -138,15 +138,15 @@ export default async function Home({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 space-y-8">
+            <div className="grid grid-cols-1 xl:grid-cols-7 gap-8">
+              <div className="xl:col-span-5 space-y-8">
                 <section>
                   <h3 className="text-xl font-semibold mb-4">カレンダー</h3>
                   <CalendarView monthData={currentMonthData} />
                 </section>
               </div>
               
-              <div className="space-y-8">
+              <div className="xl:col-span-2 space-y-8">
                 <section className="bg-card p-6 rounded-lg border shadow-sm">
                   <h3 className="text-xl font-semibold mb-4">カテゴリ別内訳</h3>
                   <CategoryPieChart data={getChartData(currentMonthData)} />

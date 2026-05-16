@@ -49,7 +49,7 @@ export function CalendarView({ monthData }: { monthData: MonthlyData }) {
       </div>
       <div className="grid grid-cols-7 text-center">
         {days.map((day, i) => {
-          if (day === null) return <div key={`empty-${i}`} className="p-4 border-b border-r last:border-r-0 h-24 bg-muted/20" />
+          if (day === null) return <div key={`empty-${i}`} className="p-4 border-b border-r last:border-r-0 h-20 bg-muted/20" />
           
           const total = getDayTotal(day)
           const unset = hasUnsetCategory(day)
@@ -59,18 +59,18 @@ export function CalendarView({ monthData }: { monthData: MonthlyData }) {
             <Link 
               key={day} 
               href={`/edit?date=${dateStr}`}
-              className={`p-2 border-b border-r last:border-r-0 h-24 flex flex-col justify-between hover:bg-accent transition-colors ${
+              className={`p-1.5 border-b border-r last:border-r-0 h-20 flex flex-col justify-between hover:bg-accent transition-colors ${
                 isToday(day) ? 'bg-primary/5' : ''
               } ${unset ? 'bg-destructive/5' : ''}`}
             >
-              <span className={`text-sm font-medium ${isToday(day) ? 'text-primary' : ''} ${unset ? 'text-destructive underline decoration-2 underline-offset-4' : ''}`}>
+              <span className={`text-xs font-medium text-left ${isToday(day) ? 'text-primary' : 'text-muted-foreground'} ${unset ? 'text-destructive underline decoration-2 underline-offset-4' : ''}`}>
                 {day}
               </span>
               {total > 0 && (
-                <span className={`text-[10px] font-mono font-bold rounded px-1 py-0.5 truncate ${
-                  unset ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'
+                <span className={`text-xl font-mono font-bold text-right leading-none ${
+                  unset ? 'text-destructive' : 'text-primary'
                 }`}>
-                  ¥{total.toLocaleString()}
+                  {total.toLocaleString()}
                 </span>
               )}
             </Link>
