@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
       const newExpenditure: Expenditure = {
         id: crypto.randomUUID(),
-        category: "雑費", // インポート時はデフォルトで雑費
+        category: "未設定", // インポート時はデフォルトで未設定
         amount: item.amount,
         note: item.note,
         updated_at: new Date().toISOString()

@@ -27,6 +27,12 @@ export function CalendarView({ monthData }: { monthData: MonthlyData }) {
     return expenditures.reduce((sum, item) => sum + item.amount, 0)
   }
 
+  const hasUnsetCategory = (dayNum: number) => {
+    const dayKey = dayNum.toString().padStart(2, '0')
+    const expenditures = monthData.days[dayKey] || []
+    return expenditures.some(item => item.category === "未設定")
+  }
+
   const isToday = (dayNum: number) => {
     const today = new Date()
     return today.getFullYear() === year && 
@@ -43,25 +49,28 @@ export function CalendarView({ monthData }: { monthData: MonthlyData }) {
       </div>
       <div className="grid grid-cols-7 text-center">
         {days.map((day, i) => {
-          if (day === null) return <div key={`empty-${i}`} className="p-4 border-b border-r last:border-r-0 h-24 bg-muted/20" />
+          if (day === null) return <div key={`empty-${i}`} className="p-4 border-b border-r last:border-r-0 h-20 bg-muted/20" />
           
           const total = getDayTotal(day)
+          const unset = hasUnsetCategory(day)
           const dateStr = `${monthData.year_month}-${day.toString().padStart(2, '0')}`
           
           return (
             <Link 
               key={day} 
               href={`/edit?date=${dateStr}`}
-              className={`p-2 border-b border-r last:border-r-0 h-24 flex flex-col justify-between hover:bg-accent transition-colors ${
+              className={`p-1.5 border-b border-r last:border-r-0 h-20 flex flex-col justify-between hover:bg-accent transition-colors ${
                 isToday(day) ? 'bg-primary/5' : ''
-              }`}
+              } ${unset ? 'bg-destructive/5' : ''}`}
             >
-              <span className={`text-sm font-medium ${isToday(day) ? 'text-primary' : ''}`}>
+              <span className={`text-xs font-medium text-left ${isToday(day) ? 'text-primary' : 'text-muted-foreground'} ${unset ? 'text-destructive underline decoration-2 underline-offset-4' : ''}`}>
                 {day}
               </span>
               {total > 0 && (
-                <span className="text-[10px] font-mono font-bold bg-primary/10 text-primary rounded px-1 py-0.5 truncate">
-                  ¥{total.toLocaleString()}
+                <span className={`text-xl font-mono font-bold text-right leading-none ${
+                  unset ? 'text-destructive' : 'text-primary'
+                }`}>
+                  {total.toLocaleString()}
                 </span>
               )}
             </Link>
