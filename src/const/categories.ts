@@ -7,13 +7,14 @@ export const CATEGORIES = [
   "医療",
   "教育",
   "通信",
+  "サブスク",
   "水道光熱",
   "住居",
   "被覆",
   "保険",
   "特別",
   "雑費",
-  "未設定"
+  "未設定",
 ] as const;
 
-export type Category = typeof CATEGORIES[number];
+export type Category = (typeof CATEGORIES)[number];
