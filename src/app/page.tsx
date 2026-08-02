@@ -1,7 +1,7 @@
 import { getDb } from "@/lib/db";
 import { MonthlyData } from "@/types";
 import { CategoryPieChart } from "@/components/charts";
-import { YearlyTrendChart } from "@/components/yearly-charts";
+import { YearlyTrendChart, MonthlyCategoryData } from "@/components/yearly-charts";
 import { YearSelect } from "@/components/year-select";
 import { CalendarView } from "@/components/calendar-view";
 import { CommentForm } from "@/components/comment-form";
@@ -47,27 +47,92 @@ export default async function Home({
 
   const todayStr = new Date().toISOString().split("T")[0];
 
-  // 年間推移グラフ用のデータ（カテゴリ別の積み上げ用）
-  const trendData = yearlyData.map((d) => {
-    const monthTotal: { month: string; [key: string]: string | number } = {
-      month: d.year_month,
-    };
-
-    // 各月のカテゴリ別集計
-    for (const day in d.days) {
-      d.days[day].forEach((item) => {
-        monthTotal[item.category] =
-          (Number(monthTotal[item.category]) || 0) + item.amount;
-      });
-    }
-
-    return monthTotal;
-  });
-
   const totalYearlyAmount = yearlyData.reduce(
     (sum, d) => sum + calculateTotal(d),
     0,
   );
+
+  const monthsCount = yearlyData.length;
+  const projectedTotal =
+    monthsCount > 0 && monthsCount < 12
+      ? Math.round((totalYearlyAmount / monthsCount) * 12)
+      : null;
+
+  // 実績データが存在する月でのカテゴリ別集計と平均の算出
+  const categoryTotals: { [key: string]: number } = {};
+  yearlyData.forEach((d) => {
+    for (const day in d.days) {
+      d.days[day].forEach((item) => {
+        categoryTotals[item.category] =
+          (categoryTotals[item.category] || 0) + item.amount;
+      });
+    }
+  });
+
+  const categoryAverages: { [key: string]: number } = {};
+  if (monthsCount > 0) {
+    for (const cat in categoryTotals) {
+      categoryAverages[cat] = Math.round(categoryTotals[cat] / monthsCount);
+    }
+  }
+
+  const lastExistingMonth =
+    yearlyData.length > 0 ? yearlyData[yearlyData.length - 1].year_month : null;
+
+  // 1月〜12月までの12ヶ月分のデータを生成（残りの月は平均値で補完）
+  const trendData: MonthlyCategoryData[] = Array.from({ length: 12 }, (_, i) => {
+    const monthNum = String(i + 1).padStart(2, "0");
+    const yearMonth = `${selectedYear}-${monthNum}`;
+
+    const existingMonthData = yearlyData.find((d) => d.year_month === yearMonth);
+
+    if (existingMonthData) {
+      // 実績データが存在する月
+      const monthTotal: MonthlyCategoryData = {
+        month: yearMonth,
+        isProjected: false,
+      };
+
+      for (const day in existingMonthData.days) {
+        existingMonthData.days[day].forEach((item) => {
+          monthTotal[item.category] =
+            (Number(monthTotal[item.category]) || 0) + item.amount;
+        });
+      }
+
+      // 月の合計
+      const total = Object.entries(monthTotal)
+        .filter(([k]) => k !== "month" && k !== "isProjected")
+        .reduce((sum, [_, v]) => sum + Number(v), 0);
+
+      monthTotal.total = total;
+
+      // 最後の実績月の場合は点線グラフと繋げるために projectedTotal にも設定
+      if (yearMonth === lastExistingMonth && monthsCount < 12) {
+        monthTotal.projectedTotal = total;
+      }
+
+      return monthTotal;
+    } else {
+      // 実績データがない月（残りの月）: 月平均値で補完
+      const monthTotal: MonthlyCategoryData = {
+        month: yearMonth,
+        isProjected: true,
+      };
+
+      if (monthsCount > 0) {
+        let projectedSum = 0;
+        for (const cat in categoryAverages) {
+          const avg = categoryAverages[cat];
+          monthTotal[cat] = avg;
+          projectedSum += avg;
+        }
+        monthTotal.projectedTotal = projectedSum;
+      }
+
+      return monthTotal;
+    }
+  });
 
   return (
     <div className="container mx-auto p-4 max-w-[1400px]">
@@ -103,11 +168,18 @@ export default async function Home({
           <div className="flex items-center gap-2 border-b pb-2">
             <BarChart3 className="text-primary" />
             <h2 className="text-2xl font-bold">{selectedYear}年の概況</h2>
-            <div className="ml-auto text-xl font-bold">
-              年計:{" "}
-              <span className="text-primary">
-                ¥{totalYearlyAmount.toLocaleString()}
+            <div className="ml-auto text-xl font-bold flex items-baseline gap-2">
+              <span>
+                年計:{" "}
+                <span className="text-primary">
+                  ¥{totalYearlyAmount.toLocaleString()}
+                </span>
               </span>
+              {projectedTotal !== null && (
+                <span className="text-base font-normal text-muted-foreground">
+                  (見込み: ¥{projectedTotal.toLocaleString()})
+                </span>
+              )}
             </div>
           </div>
 
