@@ -13,12 +13,19 @@ interface ImportItem {
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, Access-Control-Request-Private-Network',
+  'Access-Control-Allow-Private-Network': 'true',
 }
+
 
 export async function OPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders })
 }
+
+export async function GET() {
+  return NextResponse.json({ status: 'ok', app: 'ExpenditureBook' }, { headers: corsHeaders })
+}
+
 
 export async function POST(req: NextRequest) {
   try {
