@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDb } from '@/lib/db'
 import { Expenditure } from '@/types'
+import { eventEmitter, EVENT_EXPENDITURE_UPDATED } from '@/lib/events'
 
 export async function POST(req: NextRequest) {
   try {
@@ -37,9 +38,11 @@ export async function POST(req: NextRequest) {
     }
 
     await db.write()
+    eventEmitter.emit(EVENT_EXPENDITURE_UPDATED, { type: 'expenditure_saved', yearMonth, day })
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('API Error:', error)
     return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 })
   }
 }
+

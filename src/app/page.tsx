@@ -6,6 +6,8 @@ import { YearSelect } from "@/components/year-select";
 import { CalendarView } from "@/components/calendar-view";
 import { CommentForm } from "@/components/comment-form";
 import { ImportDialog } from "@/components/import-dialog";
+import { PairingDialog } from "@/components/pairing-dialog";
+import { SseListener } from "@/components/sse-listener";
 import Link from "next/link";
 import {
   PlusCircle,
@@ -13,6 +15,7 @@ import {
   BarChart3,
   ChevronRight,
 } from "lucide-react";
+
 
 export default async function Home({
   searchParams,
@@ -145,22 +148,25 @@ export default async function Home({
         </div>
         <div className="flex items-center gap-4">
           <YearSelect years={years} current={selectedYear} />
+          <PairingDialog />
           <ImportDialog />
           <Link
             href="/subscriptions"
-            className="flex items-center gap-2 border px-3 py-2 rounded-lg hover:bg-muted"
+            className="flex items-center gap-2 border px-3 py-2 rounded-lg hover:bg-muted text-sm font-medium"
           >
             <span>サブスク管理</span>
           </Link>
           <Link
             href={`/edit?date=${todayStr}`}
-            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors"
+            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors text-sm"
           >
             <PlusCircle size={20} />
             <span>支出入力</span>
           </Link>
         </div>
       </header>
+      <SseListener />
+
 
       <div className="space-y-10">
         {/* 年間セクション */}
