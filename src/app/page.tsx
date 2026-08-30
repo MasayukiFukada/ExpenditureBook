@@ -138,7 +138,7 @@ export default async function Home({
   });
 
   return (
-    <div className="container mx-auto p-4 max-w-[1400px]">
+    <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold">出費管理システム</h1>
@@ -150,6 +150,13 @@ export default async function Home({
           <YearSelect years={years} current={selectedYear} />
           <PairingDialog />
           <ImportDialog />
+          <Link
+            href="/compare"
+            className="flex items-center gap-1.5 border px-3 py-2 rounded-lg hover:bg-muted text-sm font-medium"
+          >
+            <BarChart3 size={16} className="text-primary" />
+            <span>年間比較</span>
+          </Link>
           <Link
             href="/subscriptions"
             className="flex items-center gap-2 border px-3 py-2 rounded-lg hover:bg-muted text-sm font-medium"
@@ -171,9 +178,16 @@ export default async function Home({
       <div className="space-y-10">
         {/* 年間セクション */}
         <section className="space-y-6">
-          <div className="flex items-center gap-2 border-b pb-2">
+          <div className="flex items-center gap-2 border-b pb-2 flex-wrap">
             <BarChart3 className="text-primary" />
             <h2 className="text-2xl font-bold">{selectedYear}年の概況</h2>
+            <Link
+              href="/compare"
+              className="text-xs text-primary hover:underline flex items-center gap-0.5 ml-2 font-medium"
+            >
+              <span>複数年の比較を見る</span>
+              <ChevronRight size={14} />
+            </Link>
             <div className="ml-auto text-xl font-bold flex items-baseline gap-2">
               <span>
                 年計:{" "}

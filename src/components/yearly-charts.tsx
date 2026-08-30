@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { CATEGORIES } from '@/const/categories'
 
@@ -18,11 +19,24 @@ const COLORS = [
 ]
 
 export function YearlyTrendChart({ data }: { data: MonthlyCategoryData[] }) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const hasProjectedData = data.some((d) => d.isProjected);
 
+  if (!mounted) {
+    return (
+      <div className="h-[400px] w-full min-w-0 flex items-center justify-center bg-muted/10 rounded-lg">
+        <span className="text-xs text-muted-foreground">グラフを読み込み中...</span>
+      </div>
+    )
+  }
+
   return (
-    <div className="h-[400px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="h-[400px] w-full min-w-0 min-h-[400px]">
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={350}>
         <LineChart
           data={data}
           margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
