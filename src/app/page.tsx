@@ -1,5 +1,5 @@
 import { getDb } from "@/lib/db";
-import { MonthlyData } from "@/types";
+import { MonthlyData, UnassignedItem } from "@/types";
 import { CategoryPieChart } from "@/components/charts";
 import { YearlyTrendChart, MonthlyCategoryData } from "@/components/yearly-charts";
 import { YearSelect } from "@/components/year-select";
@@ -8,6 +8,7 @@ import { CommentForm } from "@/components/comment-form";
 import { ImportDialog } from "@/components/import-dialog";
 import { PairingDialog } from "@/components/pairing-dialog";
 import { SseListener } from "@/components/sse-listener";
+import { UnassignedWizard } from "@/components/unassigned-wizard";
 import Link from "next/link";
 import {
   PlusCircle,
@@ -24,6 +25,29 @@ export default async function Home({
 }) {
   const db = await getDb();
   const allMonthlyData = db.data.monthly;
+
+  // 未設定の項目を全件抽出（日付昇順）
+  const unassignedItems: UnassignedItem[] = [];
+  for (const monthly of allMonthlyData) {
+    for (const day in monthly.days) {
+      const expenditures = monthly.days[day] || [];
+      for (const item of expenditures) {
+        if (item.category === "未設定") {
+          unassignedItems.push({
+            yearMonth: monthly.year_month,
+            day,
+            date: `${monthly.year_month}-${day.padStart(2, "0")}`,
+            id: item.id,
+            category: item.category,
+            amount: item.amount,
+            note: item.note,
+            updated_at: item.updated_at,
+          });
+        }
+      }
+    }
+  }
+  unassignedItems.sort((a, b) => a.date.localeCompare(b.date));
 
   // 利用可能な年のリストを取得
   const years = Array.from(
@@ -174,6 +198,9 @@ export default async function Home({
       </header>
       <SseListener />
 
+      <div className="mb-6">
+        <UnassignedWizard initialItems={unassignedItems} />
+      </div>
 
       <div className="space-y-10">
         {/* 年間セクション */}

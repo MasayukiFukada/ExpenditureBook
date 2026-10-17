@@ -85,12 +85,28 @@ export function EditForm({ dateStr, initialExpenditures }: EditFormProps) {
         </div>
         <div className="divide-y">
           {expenditures.map((item, index) => (
-            <div key={item.id} className="p-3 hover:bg-muted/30 transition-colors">
+            <div 
+              key={item.id} 
+              className={`p-3 transition-colors ${
+                item.category === '未設定' 
+                  ? 'bg-destructive/5 border-l-4 border-l-destructive' 
+                  : 'hover:bg-muted/30'
+              }`}
+            >
               <div className="flex flex-col md:grid md:grid-cols-[1fr_120px_2fr_40px] gap-3 items-start md:items-center">
                 <div className="w-full">
-                  <span className="md:hidden text-[10px] font-bold text-muted-foreground uppercase mb-1 block">カテゴリ</span>
+                  <div className="md:hidden flex items-center justify-between mb-1">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase">カテゴリ</span>
+                    {item.category === '未設定' && (
+                      <span className="text-[10px] text-destructive font-bold bg-destructive/10 px-1 rounded">要設定</span>
+                    )}
+                  </div>
                   <select 
-                    className="w-full bg-background border rounded px-2 py-1.5 text-sm"
+                    className={`w-full bg-background border rounded px-2 py-1.5 text-sm transition-colors ${
+                      item.category === '未設定'
+                        ? 'border-destructive text-destructive font-semibold'
+                        : ''
+                    }`}
                     value={item.category}
                     onChange={(e) => updateItem(item.id, 'category', e.target.value)}
                   >

@@ -16,6 +16,17 @@ export interface MonthlyData {
   days: DayData;
 }
 
+export interface UnassignedItem {
+  yearMonth: string;
+  day: string;
+  date: string; // YYYY-MM-DD
+  id: string;
+  category: string;
+  amount: number;
+  note: string;
+  updated_at: string;
+}
+
 export interface PlanHistoryEntry {
   id: string;
   plan_name?: string;

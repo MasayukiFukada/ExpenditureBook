@@ -18,6 +18,10 @@ export function SseListener() {
         try {
           const payload = JSON.parse(event.data)
           if (payload.type === 'expenditure_updated') {
+            if (payload.data?.source === 'wizard') {
+              router.refresh()
+              return
+            }
             const count = payload.data?.count || 1
             setToastMessage(`📱 スマホから${count}件の支出を受信・自動反映しました`)
             router.refresh()

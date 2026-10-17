@@ -63,9 +63,16 @@ export function CalendarView({ monthData }: { monthData: MonthlyData }) {
                 isToday(day) ? 'bg-primary/5' : ''
               } ${unset ? 'bg-destructive/5' : ''}`}
             >
-              <span className={`text-xs font-medium text-left ${isToday(day) ? 'text-primary' : 'text-muted-foreground'} ${unset ? 'text-destructive underline decoration-2 underline-offset-4' : ''}`}>
-                {day}
-              </span>
+              <div className="flex items-center justify-between">
+                <span className={`text-xs font-medium text-left ${isToday(day) ? 'text-primary font-bold' : 'text-muted-foreground'} ${unset ? 'text-destructive font-bold underline decoration-2 underline-offset-4' : ''}`}>
+                  {day}
+                </span>
+                {unset && (
+                  <span className="text-[9px] bg-destructive/10 text-destructive font-bold px-1 rounded leading-tight">
+                    要設定
+                  </span>
+                )}
+              </div>
               {total > 0 && (
                 <span className={`text-xl font-mono font-bold text-right leading-none ${
                   unset ? 'text-destructive' : 'text-primary'
