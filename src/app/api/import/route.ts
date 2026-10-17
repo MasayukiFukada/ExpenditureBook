@@ -1,19 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDb } from '@/lib/db'
 import { Expenditure } from '@/types'
+import { eventEmitter, EVENT_EXPENDITURE_UPDATED } from '@/lib/events'
 
 interface ImportItem {
   date: string;    // YYYY-MM-DD
   note: string;
   amount: number;
+  category?: string;
 }
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, Access-Control-Request-Private-Network',
+  'Access-Control-Allow-Private-Network': 'true',
+}
+
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders })
+}
+
+export async function GET() {
+  return NextResponse.json({ status: 'ok', app: 'ExpenditureBook' }, { headers: corsHeaders })
+}
+
 
 export async function POST(req: NextRequest) {
   try {
-    const items = await req.json() as ImportItem[]
+    const rawData = await req.json()
+    const items: ImportItem[] = Array.isArray(rawData) ? rawData : [rawData]
     const db = await getDb()
 
     for (const item of items) {
+      if (!item.date || typeof item.amount !== 'number') continue
+
       const [year, month, day] = item.date.split('-')
       const yearMonth = `${year}-${month}`
       
@@ -32,9 +54,9 @@ export async function POST(req: NextRequest) {
 
       const newExpenditure: Expenditure = {
         id: crypto.randomUUID(),
-        category: "未設定", // インポート時はデフォルトで未設定
+        category: item.category || "未設定",
         amount: item.amount,
-        note: item.note,
+        note: item.note || "",
         updated_at: new Date().toISOString()
       }
 
@@ -46,9 +68,15 @@ export async function POST(req: NextRequest) {
     }
 
     await db.write()
-    return NextResponse.json({ success: true, count: items.length })
+
+    // リアルタイム通知イベントを発火
+    eventEmitter.emit(EVENT_EXPENDITURE_UPDATED, { count: items.length, items })
+
+    return NextResponse.json({ success: true, count: items.length }, { headers: corsHeaders })
   } catch (error) {
     console.error('Import Error:', error)
-    return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 })
+    return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500, headers: corsHeaders })
   }
 }
+
+

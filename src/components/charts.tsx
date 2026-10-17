@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
 
 interface CategoryData {
@@ -13,9 +14,22 @@ const COLORS = [
 ]
 
 export function CategoryPieChart({ data }: { data: CategoryData[] }) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <div className="h-[300px] w-full min-w-0 flex items-center justify-center bg-muted/10 rounded-lg">
+        <span className="text-xs text-muted-foreground">グラフを読み込み中...</span>
+      </div>
+    )
+  }
+
   return (
-    <div className="h-[300px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="h-[300px] w-full min-w-0 min-h-[300px]">
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={280}>
         <PieChart>
           <Pie
             data={data}

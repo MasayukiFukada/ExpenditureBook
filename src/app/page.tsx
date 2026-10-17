@@ -1,11 +1,14 @@
 import { getDb } from "@/lib/db";
-import { MonthlyData } from "@/types";
+import { MonthlyData, UnassignedItem } from "@/types";
 import { CategoryPieChart } from "@/components/charts";
-import { YearlyTrendChart } from "@/components/yearly-charts";
+import { YearlyTrendChart, MonthlyCategoryData } from "@/components/yearly-charts";
 import { YearSelect } from "@/components/year-select";
 import { CalendarView } from "@/components/calendar-view";
 import { CommentForm } from "@/components/comment-form";
 import { ImportDialog } from "@/components/import-dialog";
+import { PairingDialog } from "@/components/pairing-dialog";
+import { SseListener } from "@/components/sse-listener";
+import { UnassignedWizard } from "@/components/unassigned-wizard";
 import Link from "next/link";
 import {
   PlusCircle,
@@ -14,6 +17,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 
+
 export default async function Home({
   searchParams,
 }: {
@@ -21,6 +25,29 @@ export default async function Home({
 }) {
   const db = await getDb();
   const allMonthlyData = db.data.monthly;
+
+  // 未設定の項目を全件抽出（日付昇順）
+  const unassignedItems: UnassignedItem[] = [];
+  for (const monthly of allMonthlyData) {
+    for (const day in monthly.days) {
+      const expenditures = monthly.days[day] || [];
+      for (const item of expenditures) {
+        if (item.category === "未設定") {
+          unassignedItems.push({
+            yearMonth: monthly.year_month,
+            day,
+            date: `${monthly.year_month}-${day.padStart(2, "0")}`,
+            id: item.id,
+            category: item.category,
+            amount: item.amount,
+            note: item.note,
+            updated_at: item.updated_at,
+          });
+        }
+      }
+    }
+  }
+  unassignedItems.sort((a, b) => a.date.localeCompare(b.date));
 
   // 利用可能な年のリストを取得
   const years = Array.from(
@@ -47,30 +74,95 @@ export default async function Home({
 
   const todayStr = new Date().toISOString().split("T")[0];
 
-  // 年間推移グラフ用のデータ（カテゴリ別の積み上げ用）
-  const trendData = yearlyData.map((d) => {
-    const monthTotal: { month: string; [key: string]: string | number } = {
-      month: d.year_month,
-    };
-
-    // 各月のカテゴリ別集計
-    for (const day in d.days) {
-      d.days[day].forEach((item) => {
-        monthTotal[item.category] =
-          (Number(monthTotal[item.category]) || 0) + item.amount;
-      });
-    }
-
-    return monthTotal;
-  });
-
   const totalYearlyAmount = yearlyData.reduce(
     (sum, d) => sum + calculateTotal(d),
     0,
   );
 
+  const monthsCount = yearlyData.length;
+  const projectedTotal =
+    monthsCount > 0 && monthsCount < 12
+      ? Math.round((totalYearlyAmount / monthsCount) * 12)
+      : null;
+
+  // 実績データが存在する月でのカテゴリ別集計と平均の算出
+  const categoryTotals: { [key: string]: number } = {};
+  yearlyData.forEach((d) => {
+    for (const day in d.days) {
+      d.days[day].forEach((item) => {
+        categoryTotals[item.category] =
+          (categoryTotals[item.category] || 0) + item.amount;
+      });
+    }
+  });
+
+  const categoryAverages: { [key: string]: number } = {};
+  if (monthsCount > 0) {
+    for (const cat in categoryTotals) {
+      categoryAverages[cat] = Math.round(categoryTotals[cat] / monthsCount);
+    }
+  }
+
+  const lastExistingMonth =
+    yearlyData.length > 0 ? yearlyData[yearlyData.length - 1].year_month : null;
+
+  // 1月〜12月までの12ヶ月分のデータを生成（残りの月は平均値で補完）
+  const trendData: MonthlyCategoryData[] = Array.from({ length: 12 }, (_, i) => {
+    const monthNum = String(i + 1).padStart(2, "0");
+    const yearMonth = `${selectedYear}-${monthNum}`;
+
+    const existingMonthData = yearlyData.find((d) => d.year_month === yearMonth);
+
+    if (existingMonthData) {
+      // 実績データが存在する月
+      const monthTotal: MonthlyCategoryData = {
+        month: yearMonth,
+        isProjected: false,
+      };
+
+      for (const day in existingMonthData.days) {
+        existingMonthData.days[day].forEach((item) => {
+          monthTotal[item.category] =
+            (Number(monthTotal[item.category]) || 0) + item.amount;
+        });
+      }
+
+      // 月の合計
+      const total = Object.entries(monthTotal)
+        .filter(([k]) => k !== "month" && k !== "isProjected")
+        .reduce((sum, [_, v]) => sum + Number(v), 0);
+
+      monthTotal.total = total;
+
+      // 最後の実績月の場合は点線グラフと繋げるために projectedTotal にも設定
+      if (yearMonth === lastExistingMonth && monthsCount < 12) {
+        monthTotal.projectedTotal = total;
+      }
+
+      return monthTotal;
+    } else {
+      // 実績データがない月（残りの月）: 月平均値で補完
+      const monthTotal: MonthlyCategoryData = {
+        month: yearMonth,
+        isProjected: true,
+      };
+
+      if (monthsCount > 0) {
+        let projectedSum = 0;
+        for (const cat in categoryAverages) {
+          const avg = categoryAverages[cat];
+          monthTotal[cat] = avg;
+          projectedSum += avg;
+        }
+        monthTotal.projectedTotal = projectedSum;
+      }
+
+      return monthTotal;
+    }
+  });
+
   return (
-    <div className="container mx-auto p-4 max-w-[1400px]">
+    <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold">出費管理システム</h1>
@@ -80,34 +172,61 @@ export default async function Home({
         </div>
         <div className="flex items-center gap-4">
           <YearSelect years={years} current={selectedYear} />
+          <PairingDialog />
           <ImportDialog />
           <Link
+            href="/compare"
+            className="flex items-center gap-1.5 border px-3 py-2 rounded-lg hover:bg-muted text-sm font-medium"
+          >
+            <BarChart3 size={16} className="text-primary" />
+            <span>年間比較</span>
+          </Link>
+          <Link
             href="/subscriptions"
-            className="flex items-center gap-2 border px-3 py-2 rounded-lg hover:bg-muted"
+            className="flex items-center gap-2 border px-3 py-2 rounded-lg hover:bg-muted text-sm font-medium"
           >
             <span>サブスク管理</span>
           </Link>
           <Link
             href={`/edit?date=${todayStr}`}
-            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors"
+            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors text-sm"
           >
             <PlusCircle size={20} />
             <span>支出入力</span>
           </Link>
         </div>
       </header>
+      <SseListener />
+
+      <div className="mb-6">
+        <UnassignedWizard initialItems={unassignedItems} />
+      </div>
 
       <div className="space-y-10">
         {/* 年間セクション */}
         <section className="space-y-6">
-          <div className="flex items-center gap-2 border-b pb-2">
+          <div className="flex items-center gap-2 border-b pb-2 flex-wrap">
             <BarChart3 className="text-primary" />
             <h2 className="text-2xl font-bold">{selectedYear}年の概況</h2>
-            <div className="ml-auto text-xl font-bold">
-              年計:{" "}
-              <span className="text-primary">
-                ¥{totalYearlyAmount.toLocaleString()}
+            <Link
+              href="/compare"
+              className="text-xs text-primary hover:underline flex items-center gap-0.5 ml-2 font-medium"
+            >
+              <span>複数年の比較を見る</span>
+              <ChevronRight size={14} />
+            </Link>
+            <div className="ml-auto text-xl font-bold flex items-baseline gap-2">
+              <span>
+                年計:{" "}
+                <span className="text-primary">
+                  ¥{totalYearlyAmount.toLocaleString()}
+                </span>
               </span>
+              {projectedTotal !== null && (
+                <span className="text-base font-normal text-muted-foreground">
+                  (見込み: ¥{projectedTotal.toLocaleString()})
+                </span>
+              )}
             </div>
           </div>
 
