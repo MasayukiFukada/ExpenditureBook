@@ -19,7 +19,7 @@ export function SseListener() {
           const payload = JSON.parse(event.data)
           if (payload.type === 'expenditure_updated') {
             if (payload.data?.source === 'wizard') {
-              router.refresh()
+              // ウィザード操作時はモーダルを閉じた際に一括で refresh するため、ここではスキップして仕分け中配列のズレを防ぐ
               return
             }
             const count = payload.data?.count || 1

@@ -170,28 +170,28 @@ export default async function Home({
             Next.js + lowDB Edition
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
           <YearSelect years={years} current={selectedYear} />
           <PairingDialog />
           <ImportDialog />
           <Link
             href="/compare"
-            className="flex items-center gap-1.5 border px-3 py-2 rounded-lg hover:bg-muted text-sm font-medium"
+            className="flex items-center gap-1.5 border px-2.5 sm:px-3 py-2 rounded-lg hover:bg-muted text-xs sm:text-sm font-medium"
           >
             <BarChart3 size={16} className="text-primary" />
             <span>年間比較</span>
           </Link>
           <Link
             href="/subscriptions"
-            className="flex items-center gap-2 border px-3 py-2 rounded-lg hover:bg-muted text-sm font-medium"
+            className="flex items-center gap-1.5 sm:gap-2 border px-2.5 sm:px-3 py-2 rounded-lg hover:bg-muted text-xs sm:text-sm font-medium"
           >
             <span>サブスク管理</span>
           </Link>
           <Link
             href={`/edit?date=${todayStr}`}
-            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors text-sm"
+            className="flex items-center gap-1.5 sm:gap-2 bg-primary text-primary-foreground px-3.5 sm:px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors text-xs sm:text-sm shadow-sm"
           >
-            <PlusCircle size={20} />
+            <PlusCircle size={18} />
             <span>支出入力</span>
           </Link>
         </div>
@@ -215,7 +215,7 @@ export default async function Home({
               <span>複数年の比較を見る</span>
               <ChevronRight size={14} />
             </Link>
-            <div className="ml-auto text-xl font-bold flex items-baseline gap-2">
+            <div className="w-full sm:w-auto sm:ml-auto text-lg sm:text-xl font-bold flex items-baseline gap-2 justify-between sm:justify-start pt-1 sm:pt-0">
               <span>
                 年計:{" "}
                 <span className="text-primary">
@@ -223,7 +223,7 @@ export default async function Home({
                 </span>
               </span>
               {projectedTotal !== null && (
-                <span className="text-base font-normal text-muted-foreground">
+                <span className="text-sm sm:text-base font-normal text-muted-foreground">
                   (見込み: ¥{projectedTotal.toLocaleString()})
                 </span>
               )}

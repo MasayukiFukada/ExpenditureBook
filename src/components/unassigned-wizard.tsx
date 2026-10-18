@@ -51,10 +51,12 @@ export function UnassignedWizard({ initialItems }: UnassignedWizardProps) {
   const [isCompleted, setIsCompleted] = useState(false)
   const [processedCount, setProcessedCount] = useState(0)
 
-  // initialItems がサーバー側で変わった時の同期
+  // initialItems がサーバー側で変わった時の同期（モーダル非表示時のみ同期し、実行中のインデックスズレを防止）
   useEffect(() => {
-    setItems(initialItems)
-  }, [initialItems])
+    if (!isOpen) {
+      setItems(initialItems)
+    }
+  }, [initialItems, isOpen])
 
   // 現在の未設定項目数
   const unassignedCount = items.filter(it => it.category === '未設定').length
@@ -72,9 +74,12 @@ export function UnassignedWizard({ initialItems }: UnassignedWizardProps) {
   }, [currentIndex, currentItem])
 
   const openWizard = () => {
-    // 最初の未設定項目のインデックスを探す
-    const firstUnsetIndex = items.findIndex(it => it.category === '未設定')
-    setCurrentIndex(firstUnsetIndex >= 0 ? firstUnsetIndex : 0)
+    // 未設定項目のみを抽出して仕分け対象とする
+    const unassignedOnly = initialItems.filter(it => it.category === '未設定')
+    if (unassignedOnly.length === 0) return
+
+    setItems(unassignedOnly)
+    setCurrentIndex(0)
     setIsCompleted(false)
     setProcessedCount(0)
     setIsOpen(true)
@@ -84,6 +89,8 @@ export function UnassignedWizard({ initialItems }: UnassignedWizardProps) {
     setIsOpen(false)
     if (processedCount > 0) {
       router.refresh()
+    } else {
+      setItems(initialItems)
     }
   }
 
@@ -177,21 +184,21 @@ export function UnassignedWizard({ initialItems }: UnassignedWizardProps) {
     <>
       {/* 未設定が存在するときに表示するトップバナー */}
       {unassignedCount > 0 && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm transition-all animate-in fade-in slide-in-from-top-2">
-          <div className="flex items-center gap-3">
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm transition-all animate-in fade-in slide-in-from-top-2 overflow-hidden">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 w-full sm:w-auto">
             <div className="bg-amber-500 text-amber-950 p-2 rounded-lg shrink-0">
               <Sparkles size={20} className="animate-pulse" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-amber-900 dark:text-amber-200">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-bold text-sm sm:text-base text-amber-900 dark:text-amber-200">
                   未設定の支出が {unassignedCount} 件あります
                 </span>
-                <span className="text-xs bg-amber-500/20 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-full font-medium">
+                <span className="text-[10px] sm:text-xs bg-amber-500/20 text-amber-800 dark:text-amber-300 px-1.5 py-0.5 rounded-full font-medium shrink-0">
                   要仕分け
                 </span>
               </div>
-              <p className="text-xs text-amber-700/80 dark:text-amber-300/80 mt-0.5">
+              <p className="text-xs text-amber-700/80 dark:text-amber-300/80 mt-0.5 truncate sm:whitespace-normal">
                 1問1答形式でサクサクっとカテゴリを設定できます
               </p>
             </div>
@@ -208,28 +215,28 @@ export function UnassignedWizard({ initialItems }: UnassignedWizardProps) {
 
       {/* ウィザードモーダル */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4 animate-in fade-in duration-200">
           <div 
-            className="bg-card text-card-foreground border rounded-2xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden max-h-[92vh] animate-in zoom-in-95 duration-150"
+            className="bg-card text-card-foreground border rounded-2xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden max-h-[92vh] animate-in zoom-in-95 duration-150 mx-auto"
             role="dialog"
             aria-modal="true"
           >
             {/* ヘッダー */}
-            <div className="p-4 border-b bg-muted/40 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-base flex items-center gap-1.5">
-                  <Sparkles size={18} className="text-amber-500" />
+            <div className="p-3.5 sm:p-4 border-b bg-muted/40 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="font-bold text-sm sm:text-base flex items-center gap-1.5 truncate">
+                  <Sparkles size={18} className="text-amber-500 shrink-0" />
                   1問1答 仕分け
                 </span>
                 {!isCompleted && items.length > 0 && (
-                  <span className="text-xs font-mono bg-primary/10 text-primary font-semibold px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-mono bg-primary/10 text-primary font-semibold px-2 py-0.5 rounded-full shrink-0">
                     残り {unassignedCount} 件
                   </span>
                 )}
               </div>
               <button
                 onClick={closeWizard}
-                className="text-muted-foreground hover:text-foreground hover:bg-muted p-1.5 rounded-full transition-colors"
+                className="text-muted-foreground hover:text-foreground hover:bg-muted p-1.5 rounded-full transition-colors shrink-0"
                 title="閉じる"
               >
                 <X size={18} />
@@ -251,11 +258,11 @@ export function UnassignedWizard({ initialItems }: UnassignedWizardProps) {
             {/* コンテンツエリア */}
             {isCompleted ? (
               // 完了画面
-              <div className="p-8 text-center flex flex-col items-center justify-center space-y-4 my-auto">
+              <div className="p-6 sm:p-8 text-center flex flex-col items-center justify-center space-y-4 my-auto">
                 <div className="w-16 h-16 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center animate-in zoom-in">
                   <CheckCircle2 size={36} />
                 </div>
-                <h3 className="text-xl font-bold">すべての仕分けが完了しました！</h3>
+                <h3 className="text-lg sm:text-xl font-bold">すべての仕分けが完了しました！</h3>
                 <p className="text-sm text-muted-foreground max-w-xs">
                   未設定の項目がすべて設定されました。<br />
                   カレンダーと集計データに反映されます。
@@ -269,11 +276,11 @@ export function UnassignedWizard({ initialItems }: UnassignedWizardProps) {
               </div>
             ) : currentItem ? (
               // 1問1答カード
-              <div className="flex-1 overflow-y-auto p-4 space-y-5">
+              <div className="flex-1 overflow-y-auto p-3.5 sm:p-4 space-y-4 sm:space-y-5">
                 {/* 日付・進捗表示 */}
                 <div className="flex items-center justify-between text-xs text-muted-foreground border-b pb-2">
                   <div className="flex items-center gap-1.5 font-medium">
-                    <Calendar size={14} className="text-primary" />
+                    <Calendar size={14} className="text-primary shrink-0" />
                     <span>{formatDateWithDay(currentItem.date)}</span>
                   </div>
                   <span className="font-mono">
@@ -282,10 +289,10 @@ export function UnassignedWizard({ initialItems }: UnassignedWizardProps) {
                 </div>
 
                 {/* 金額・備考表示カード */}
-                <div className="bg-muted/30 border rounded-xl p-4 text-center space-y-3">
-                  <div className="space-y-1">
+                <div className="bg-muted/30 border rounded-xl p-3 sm:p-4 text-center space-y-2.5 sm:space-y-3">
+                  <div className="space-y-0.5 sm:space-y-1">
                     <span className="text-xs text-muted-foreground font-medium">支出金額</span>
-                    <div className="text-3xl sm:text-4xl font-mono font-black text-primary tracking-tight">
+                    <div className="text-2xl sm:text-4xl font-mono font-black text-primary tracking-tight">
                       ¥{currentAmount.toLocaleString()}
                     </div>
                   </div>
@@ -323,7 +330,7 @@ export function UnassignedWizard({ initialItems }: UnassignedWizardProps) {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                     {SELECTABLE_CATEGORIES.map((cat) => {
                       const isSelected = selectedCategory === cat
                       return (
@@ -331,13 +338,13 @@ export function UnassignedWizard({ initialItems }: UnassignedWizardProps) {
                           key={cat}
                           type="button"
                           onClick={() => setSelectedCategory(cat)}
-                          className={`py-2.5 px-2 rounded-xl text-xs sm:text-sm font-medium border transition-all flex items-center justify-center gap-1 active:scale-95 ${
+                          className={`py-2 px-1 sm:py-2.5 sm:px-2 rounded-xl text-xs sm:text-sm font-medium border transition-all flex items-center justify-center gap-1 active:scale-95 min-h-[40px] ${
                             isSelected
                               ? 'bg-primary text-primary-foreground border-primary shadow-md font-bold scale-[1.02]'
                               : 'bg-background hover:bg-muted/80 text-foreground border-border/80'
                           }`}
                         >
-                          {isSelected && <Check size={14} className="shrink-0" />}
+                          {isSelected && <Check size={12} className="shrink-0" />}
                           <span className="truncate">{cat}</span>
                         </button>
                       )
@@ -358,7 +365,7 @@ export function UnassignedWizard({ initialItems }: UnassignedWizardProps) {
                   type="button"
                   onClick={handlePrev}
                   disabled={currentIndex === 0 || isSaving}
-                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:bg-muted disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                  className="flex items-center gap-1 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:bg-muted disabled:opacity-30 disabled:pointer-events-none transition-colors"
                 >
                   <ChevronLeft size={16} />
                   <span>前へ</span>
@@ -369,7 +376,7 @@ export function UnassignedWizard({ initialItems }: UnassignedWizardProps) {
                     type="button"
                     onClick={handleSkip}
                     disabled={isSaving}
-                    className="px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:bg-muted transition-colors"
+                    className="px-2.5 sm:px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:bg-muted transition-colors"
                   >
                     スキップ
                   </button>
@@ -378,7 +385,7 @@ export function UnassignedWizard({ initialItems }: UnassignedWizardProps) {
                     type="button"
                     onClick={handleNext}
                     disabled={!selectedCategory || isSaving}
-                    className={`flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all ${
+                    className={`flex items-center justify-center gap-1 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-md transition-all ${
                       selectedCategory && !isSaving
                         ? 'bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95'
                         : 'bg-muted text-muted-foreground opacity-50 cursor-not-allowed'
